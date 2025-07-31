@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\Hash;
 
 class AuthController extends Controller
 {
-    public function showLoginForm() 
+    public function showLoginForm()
     {
         return view('auth.login');
     }
@@ -31,7 +31,7 @@ class AuthController extends Controller
         ]);
     }
 
-    public function showRegisterForm() 
+    public function showRegisterForm()
     {
         return view('auth.register');
     }
@@ -47,12 +47,14 @@ class AuthController extends Controller
                 'string',
                 'min:8',
                 'confirmed',
-                // ✅ aturan regex untuk minimal 1 huruf kapital, 1 angka, dan 1 simbol
                 'regex:/^(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).+$/'
             ],
         ], [
-            // ✅ pesan error kustom biar konsisten seperti di halaman edit password
-            'password.regex' => 'Password harus mengandung minimal satu huruf kapital, satu angka, dan satu simbol.',
+            // Semua rule password (min, regex, required, dsb) akan pakai pesan ini
+            'password.*' => 'Password setidaknya harus 8 karakter dan mengandung minimal satu huruf kapital, satu angka, serta satu simbol.',
+
+            // Khusus untuk konfirmasi password tetap pesan sendiri
+            'password.confirmed' => 'Konfirmasi password tidak sesuai dengan password.'
         ]);
 
         $user = User::create([
@@ -65,6 +67,7 @@ class AuthController extends Controller
         Auth::login($user);
         return redirect('/dashboard');
     }
+
 
     public function logout(Request $request)
     {

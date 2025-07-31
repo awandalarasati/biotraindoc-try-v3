@@ -18,7 +18,7 @@
         </div>
 
         <p>Jika Anda tidak meminta reset kata sandi, abaikan email ini.</p>
-        <p style="margin-top: 30px;">Terima kasih,<br><strong>Biofarma Team</strong></p>
+        <p style="margin-top: 30px;">Terima kasih,<br><strong>PT Bio Farma</strong></p>
     </div>
 </body>
 </html>

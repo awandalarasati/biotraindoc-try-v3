@@ -1,70 +1,79 @@
 @extends('layouts.app')
 
 @section('content')
-<div style="padding: 40px; overflow-x: auto;">
-    <h2 style="color: #029dbb; font-size: 26px;">Dashboard</h2>
+<div class="page-wrapper">
+    <h2 class="heading-main">Dashboard</h2>
 
-    <div style="background: white; border-radius: 15px; padding: 20px; margin-top: 20px; overflow-x: auto;">
-        <h3 style="color: #029dbb; font-size: 22px; border-bottom: 2px solid #029dbb; padding-bottom: 10px;">
-            Folder Kegiatan
-        </h3>
+    <div class="card-box">
+        <h3 class="heading-sub">Folder Kegiatan</h3>
 
-    <!-- Filter Pencarian -->
-    <div style="margin-top: 20px; margin-bottom: 20px;">
-        <form method="GET" style="display: flex; max-width: 300px;">
-            <input type="text" name="search" placeholder="Cari Judul / Kode TNA" value="{{ request('search') }}"
-                style="padding: 10px; border-radius: 8px; border: 1px solid #ccc; width: 100%;">
-        </form>
-    </div>
+        <!-- Search bar -->
+        <div style="margin-top: 20px; margin-bottom: 20px;">
+            <form method="GET" style="display: flex; max-width: 300px;">
+                <input type="text" name="search" placeholder="Cari Judul / Kode TNA" value="{{ request('search') }}"
+                    style="padding: 10px; border-radius: 8px; border: 1px solid #ccc; width: 100%;">
+            </form>
+        </div>
 
-        <table style="width: 100%; margin-top: 20px; border-collapse: collapse; font-size: 16px; min-width: 900px;">
-            <thead>
-                <tr style="background-color: #f2f2f2;">
-                    <th style="text-align: left; padding: 12px;">Judul Folder</th>
-                    <th style="text-align: center; padding: 12px;">Deskripsi</th>
-                    <th style="text-align: center; padding: 12px;">Folder Size</th>
-                    <th style="text-align: center; padding: 12px;">Tanggal Unggah</th>
-                    <th style="text-align: center; padding: 12px;">Perubahan Terakhir</th>
-                    <th style="text-align: center; padding: 12px;">Kode TNA</th>
-                    <th style="text-align: center; padding: 12px;">Aksi</th>
-                </tr>
-            </thead>
-            <tbody>
-                @forelse ($folders as $folder)
-                    <tr style="border-bottom: 1px solid #e6e6e6;">
-                        <td style="padding: 15px;">
-                            <a href="{{ route('folders.show', $folder->id) }}" style="text-decoration: none; color: #029dbb; display: flex; align-items: center; gap: 10px;">
-                                <img src="{{ asset('assets/icons/folder.png') }}" alt="Folder Icon" width="24">
-                                {{ $folder->title }}
-                            </a>
-                        </td>
-                        <td style="padding: 15px; word-break: break-word; max-width: 250px;">{{ $folder->description }}</td>
-                        <td style="text-align: center;">{{ $folder->folder_size ?? '0' }}</td>
-                        <td style="text-align: center;">{{ \Carbon\Carbon::parse($folder->created_at)->format('d M Y') }}</td>
-                        <td style="text-align: center;">
-                            {{ $folder->updated_at ? \Carbon\Carbon::parse($folder->updated_at)->format('d M Y') : '-' }}
-                        </td>
-                        <td style="text-align: center;">{{ $folder->tna_code ?? '-' }}</td>
-
-                        <td style="text-align: center; white-space: nowrap;">
-                            <a href="#" class="btn-edit-folder" data-id="{{ $folder->id }}" style="margin-right: 10px; color: orange;">✏️</a>
-                            <form id="delete-form-{{ $folder->id }}" action="{{ route('folders.destroy', $folder->id) }}" method="POST" style="display: inline;">
-                                @csrf
-                                @method('DELETE')
-                                <button type="button" class="btn-delete-folder" data-id="{{ $folder->id }}" style="border: none; background: transparent; color: red; cursor: pointer;">🗑️</button>
-                            </form>
-                        </td>
-                    </tr>
-                @empty
+        <div class="table-responsive">
+            <table class="folder-table">
+                <thead>
                     <tr>
-                        <td colspan="6" style="text-align: center; padding: 30px; color: #aaa;">Belum ada folder.</td>
+                        <th>Judul Folder</th>
+                        <th>Deskripsi / Link</th>
+                        <th>Folder Size</th>
+                        <th>Tanggal Unggah</th>
+                        <th>Perubahan Terakhir</th>
+                        <th>Kode TNA</th>
+                        <th>Aksi</th>
                     </tr>
-                @endforelse
-            </tbody>
-        </table>
+                </thead>
+                <tbody>
+                    @forelse ($folders as $folder)
+                        <tr>
+                            <td>
+                                <a href="{{ route('folders.show', $folder->id) }}" class="folder-link">
+                                    <img src="{{ asset('assets/icons/folder.png') }}" alt="Folder Icon" width="24">
+                                    {{ $folder->title }}
+                                </a>
+                            </td>
+
+                            <!-- Perubahan: gabungan deskripsi atau link -->
+                            <td class="desc-cell">
+                                @if($folder->description && filter_var($folder->description, FILTER_VALIDATE_URL))
+                                    <a href="{{ $folder->description }}" target="_blank" title="Klik untuk buka link" class="link-icon">🔗</a>
+                                @else
+                                    {{ $folder->description ?? '-' }}
+                                @endif
+                            </td>
+
+                            <td class="center-text">{{ $folder->folder_size ?? '0' }}</td>
+                            <td class="center-text">{{ \Carbon\Carbon::parse($folder->created_at)->format('d M Y H:i:s') }}</td>
+                            <td class="center-text">
+                                {{ $folder->updated_at ? \Carbon\Carbon::parse($folder->updated_at)->format('d M Y H:i:s') : '-' }}
+                            </td>
+                            <td class="center-text">{{ $folder->tna_code ?? '-' }}</td>
+                            <td class="center-text nowrap">
+                                <a href="#" class="btn-edit-folder" data-id="{{ $folder->id }}" style="margin-right: 10px; color: orange;">✏️</a>
+                                <form id="delete-form-{{ $folder->id }}" action="{{ route('folders.destroy', $folder->id) }}" method="POST" style="display: inline;">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="button" class="btn-delete-folder" data-id="{{ $folder->id }}" style="border: none; background: transparent; color: red; cursor: pointer;">🗑️</button>
+                                </form>
+                            </td>
+                        </tr>
+                    @empty
+                        <tr>
+                            <td colspan="7" class="center-text" style="padding: 30px; color: #aaa;">Belum ada folder.</td>
+                        </tr>
+                    @endforelse
+                </tbody>
+            </table>
+        </div>
     </div>
 </div>
 
+<!-- MODAL -->
 <div id="confirmation-modal" style="display:none; position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(0,0,0,0.5); justify-content:center; align-items:center; z-index:9999;">
     <div style="background:white; padding:30px; border-radius:10px; text-align:center; width:90%; max-width:400px;">
         <p id="confirmation-message" style="font-size:18px; margin-bottom:20px;"></p>
@@ -73,9 +82,9 @@
     </div>
 </div>
 
+<!-- JS -->
 <script>
     document.addEventListener("DOMContentLoaded", function () {
-        // Hapus folder
         document.querySelectorAll('.btn-delete-folder').forEach(function (btn) {
             btn.addEventListener('click', function () {
                 const id = this.getAttribute('data-id');
@@ -85,11 +94,10 @@
             });
         });
 
-        // Edit folder
         document.querySelectorAll('.btn-edit-folder').forEach(function (btn) {
             btn.addEventListener('click', function () {
                 const id = this.getAttribute('data-id');
-                    window.location.href = "/folders/" + id + "/edit";
+                window.location.href = "/folders/" + id + "/edit";
             });
         });
     });
@@ -110,42 +118,21 @@
     }
 </script>
 
+<!-- CSS -->
 <style>
-    @media (max-width: 768px) {
-        div[style*="padding: 40px;"] {
-            padding: 20px !important;
-        }
-
-        table {
-            font-size: 14px !important;
-            min-width: 100%;
-        }
-
-        th, td {
-            padding: 8px !important;
-        }
-
-        h2 {
-            font-size: 22px !important;
-        }
-
-        h3 {
-            font-size: 18px !important;
-        }
-
-        td a {
-            flex-direction: column;
-            gap: 5px !important;
-            align-items: flex-start !important;
-        }
-
-        td[style*="word-break: break-word;"] {
-            max-width: 150px !important;
-        }
-
-        #confirmation-modal > div {
-            width: 95% !important;
-        }
-    }
+    .page-wrapper { padding: 40px; overflow-x: hidden; }
+    .card-box { background: white; border-radius: 15px; padding: 20px; margin-top: 20px; }
+    .heading-main { color: #029dbb; font-size: 26px; }
+    .heading-sub { color: #029dbb; font-size: 22px; border-bottom: 2px solid #029dbb; padding-bottom: 10px; }
+    .table-responsive { width: 100%; overflow-x: auto; }
+    .folder-table { width: 100%; border-collapse: collapse; font-size: 16px; min-width: 700px; }
+    .folder-table th, .folder-table td { padding: 12px; border-bottom: 1px solid #e6e6e6; }
+    .folder-table th { background-color: #f2f2f2; text-align: center; }
+    .folder-link { text-decoration: none; color: #029dbb; display: flex; align-items: center; gap: 10px; }
+    .center-text { text-align: center; }
+    .desc-cell { word-break: break-word; max-width: 250px; text-align: justify; }
+    .nowrap { white-space: nowrap; }
+    .link-icon { font-size: 20px; text-decoration: none; color: #029dbb; }
+    .link-icon:hover { color: #005f75; }
 </style>
 @endsection

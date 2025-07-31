@@ -38,7 +38,7 @@ class DocumentController extends Controller
         $file = $request->file('document');
         $path = $file->store('uploads', 'public');
 
-        Document::create([
+        $document = Document::create([
             'folder_id'     => $request->folder_id,
             'title'         => $request->title,
             'description'   => $request->description,
@@ -46,8 +46,12 @@ class DocumentController extends Controller
             'file_type'     => $file->getClientOriginalExtension(),
             'file_size'     => $file->getSize(),
             'original_name' => $file->getClientOriginalName(),
-            'jenis_file'    => $request->jenis_file,   // ✅ simpan jenis_file
+            'jenis_file'    => $request->jenis_file,
         ]);
+
+        // ✅ Update updated_at folder setiap kali ada file baru
+        $folder = Folder::find($request->folder_id);
+        $folder->touch();
 
         return redirect()->route('folders.show', $request->folder_id)
                          ->with('success', 'File berhasil diunggah.');
@@ -68,7 +72,6 @@ class DocumentController extends Controller
 
         return view('dashboard.edit', compact('document', 'folder', 'greeting'));
     }
-
 
     public function update(Request $request, $id)
     {
@@ -103,6 +106,9 @@ class DocumentController extends Controller
 
         $document->update($data);
 
+        // ✅ Update updated_at folder setiap kali ada file diubah
+        $document->folder->touch();
+
         return redirect()->route('folders.show', $document->folder_id)
                          ->with('success', 'File berhasil diperbarui.');
     }
@@ -118,6 +124,10 @@ class DocumentController extends Controller
 
         $document->delete();
 
+        // ✅ Update updated_at folder setiap kali ada file dihapus
+        $folder = Folder::find($folder_id);
+        $folder->touch();
+
         return redirect()->route('folders.show', $folder_id)
                          ->with('success', 'File berhasil dihapus.');
     }
@@ -128,7 +138,6 @@ class DocumentController extends Controller
 
         $ext = strtolower(pathinfo($document->file_path, PATHINFO_EXTENSION));
 
-        // File Word, Excel, dan Zip auto download
         if (in_array($ext, ['doc', 'docx', 'xls', 'xlsx', 'csv', 'zip', 'rar'])) {
             $path = storage_path('app/public/' . $document->file_path);
             if (file_exists($path)) {

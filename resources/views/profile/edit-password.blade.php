@@ -17,12 +17,13 @@
                 <label for="current_password" style="display: block; font-weight: bold; margin-bottom: 8px;">
                     Kata sandi sebelumnya
                 </label>
-                <div style="display: flex; align-items: center; border: 1px solid #ccc; border-radius: 8px; padding-right: 10px;">
+                <div style="display: flex; align-items: center; border: 1px solid #ccc; border-radius: 8px; overflow: hidden;">
                     <input type="password" name="current_password" id="current_password" required
-                        style="flex: 1; padding: 10px; border: none; border-radius: 8px 0 0 8px;">
+                        style="flex: 1; padding: 10px; border: none; min-width: 0;"
+                        placeholder=" ">
                     <img src="{{ asset('assets/icons/eye.png') }}" id="eye_current_password"
                         onclick="togglePassword('current_password')" title="Lihat"
-                        style="width: 20px; height: 20px; cursor: pointer;">
+                        style="width: 20px; height: 20px; cursor: pointer; margin-right: 10px;">
                 </div>
                 @error('current_password')
                     <div style="color: red; margin-top: 5px;">{{ $message }}</div>
@@ -34,12 +35,13 @@
                 <label for="password" style="display: block; font-weight: bold; margin-bottom: 8px;">
                     Kata sandi baru
                 </label>
-                <div style="display: flex; align-items: center; border: 1px solid #ccc; border-radius: 8px; padding-right: 10px;">
+                <div style="display: flex; align-items: center; border: 1px solid #ccc; border-radius: 8px; overflow: hidden;">
                     <input type="password" name="password" id="password" required minlength="8"
-                        style="flex: 1; padding: 10px; border: none; border-radius: 8px 0 0 8px;">
+                        style="flex: 1; padding: 10px; border: none; min-width: 0;"
+                        placeholder=" ">
                     <img src="{{ asset('assets/icons/eye.png') }}" id="eye_password"
                         onclick="togglePassword('password')" title="Lihat"
-                        style="width: 20px; height: 20px; cursor: pointer;">
+                        style="width: 20px; height: 20px; cursor: pointer; margin-right: 10px;">
                 </div>
                 @error('password')
                     <div style="color: red; margin-top: 5px;">{{ $message }}</div>
@@ -51,28 +53,72 @@
                 <label for="password_confirmation" style="display: block; font-weight: bold; margin-bottom: 8px;">
                     Konfirmasi kata sandi baru
                 </label>
-                <div style="display: flex; align-items: center; border: 1px solid #ccc; border-radius: 8px; padding-right: 10px;">
+                <div style="display: flex; align-items: center; border: 1px solid #ccc; border-radius: 8px; overflow: hidden;">
                     <input type="password" name="password_confirmation" id="password_confirmation" required minlength="8"
-                        style="flex: 1; padding: 10px; border: none; border-radius: 8px 0 0 8px;">
+                        style="flex: 1; padding: 10px; border: none; min-width: 0;"
+                        placeholder=" ">
                     <img src="{{ asset('assets/icons/eye.png') }}" id="eye_password_confirmation"
                         onclick="togglePassword('password_confirmation')" title="Lihat"
-                        style="width: 20px; height: 20px; cursor: pointer;">
+                        style="width: 20px; height: 20px; cursor: pointer; margin-right: 10px;">
                 </div>
             </div>
 
-            <button type="submit"
-                style="background: #3b82f6; color: white; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer;">
-                Simpan
-            </button>
 
-            <a href="{{ route('profile') }}"
-                style="background: red; color: white; padding: 10px 20px; border-radius: 8px; text-decoration: none; margin-left: 10px;">
-                Kembali
-            </a>
+            {{-- Tombol Simpan & Kembali --}}
+            <div class="form-buttons">
+                <button type="submit" class="btn-save">Simpan</button>
+                <a href="{{ route('profile') }}" class="btn-back">Kembali</a>
+            </div>
         </form>
     </div>
 </div>
 
+<style>
+    .form-buttons {
+        display: flex;
+        justify-content: flex-start;
+        gap: 10px;
+        flex-wrap: wrap;
+        margin-top: 20px;
+    }
+
+    .btn-save,
+    .btn-back {
+        padding: 10px 20px;
+        border-radius: 8px;
+        font-weight: bold;
+        color: white;
+        border: none;
+        cursor: pointer;
+        text-decoration: none;
+        white-space: nowrap;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 100px;
+        min-height: 40px;
+    }
+
+    .btn-save {
+        background-color: #3b82f6;
+    }
+
+    .btn-back {
+        background-color: red;
+    }
+
+    @media screen and (max-width: 375px) {
+        .form-buttons {
+            flex-direction: column;
+            align-items: stretch;
+        }
+
+        .btn-save,
+        .btn-back {
+            width: 100%;
+        }
+    }
+</style>
 {{-- JavaScript untuk toggle icon mata --}}
 <script>
     function togglePassword(fieldId) {

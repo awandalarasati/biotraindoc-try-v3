@@ -7,9 +7,6 @@ use App\Models\Folder;
 
 class FolderController extends Controller
 {
-    /**
-     * Menampilkan dashboard folder.
-     */
     public function index(Request $request)
     {
         $query = Folder::with('documents');
@@ -33,17 +30,11 @@ class FolderController extends Controller
         return view('dashboard.index', compact('folders'));
     }
 
-    /**
-     * Menampilkan form create folder.
-     */
     public function create()
     {
         return view('dashboard.create-folder');
     }
 
-    /**
-     * Simpan folder baru.
-     */
     public function store(Request $request)
     {
         $request->validate([
@@ -54,14 +45,14 @@ class FolderController extends Controller
             'tna_code.unique' => 'Kode TNA ini sudah digunakan oleh folder lain.'
         ]);
 
-        Folder::create($request->only(['title', 'description', 'tna_code']));
+        $folder = Folder::create($request->only(['title', 'description', 'tna_code']));
+
+        // ✅ Update updated_at setelah folder dibuat (meskipun Eloquent otomatis mengisi, kita pastikan tetap segar)
+        $folder->touch();
 
         return redirect()->route('dashboard')->with('success', 'Folder berhasil dibuat.');
     }
 
-    /**
-     * Menampilkan folder tertentu.
-     */
     public function show($id)
     {
         $folder = Folder::findOrFail($id);
@@ -86,18 +77,12 @@ class FolderController extends Controller
         return view('dashboard.show-folder', compact('folder', 'jenisFiles'));
     }
 
-    /**
-     * Edit folder.
-     */
     public function edit($id)
     {
         $folder = Folder::findOrFail($id);
         return view('dashboard.edit-folder', compact('folder'));
     }
 
-    /**
-     * Update folder.
-     */
     public function update(Request $request, $id)
     {
         $request->validate([
@@ -111,15 +96,19 @@ class FolderController extends Controller
         $folder = Folder::findOrFail($id);
         $folder->update($request->only(['title', 'description', 'tna_code']));
 
+        // ✅ Update updated_at setiap kali folder diubah
+        $folder->touch();
+
         return redirect()->route('dashboard')->with('success', 'Folder berhasil diperbarui.');
     }
 
-    /**
-     * Hapus folder.
-     */
     public function destroy($id)
     {
         $folder = Folder::findOrFail($id);
+
+        // ✅ Sebelum menghapus, kita sentuh dulu supaya update terakhir tercatat
+        $folder->touch();
+
         $folder->delete();
 
         return redirect()->route('dashboard')->with('success', 'Folder berhasil dihapus.');

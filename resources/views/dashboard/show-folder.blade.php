@@ -2,7 +2,8 @@
 
 @section('content')
 <div style="padding: 40px; font-family: sans-serif;">
-    {{-- Judul Folder + Badge Kode TNA --}}
+
+    {{-- Judul Folder + Badge Kode TNA + Link Ikon --}}
     <h2 style="color: #029dbb; font-size: 26px;">
         {{ $folder->title }}
         @if($folder->tna_code)
@@ -21,14 +22,23 @@
                 {{ $folder->tna_code }}
             </span>
         @endif
+
+        {{-- Tampilkan icon rantai (link) di sebelah badge kode TNA --}}
+        @if($folder->description && filter_var($folder->description, FILTER_VALIDATE_URL))
+            <a href="{{ $folder->description }}"
+               target="_blank"
+               title="Klik untuk buka link dokumentasi"
+               style="margin-left: 5px; text-decoration: none; font-size: 20px; color: #029dbb;">
+                🔗
+            </a>
+        @endif
     </h2>
 
-    {{-- Deskripsi Folder --}}
-    @if($folder->description)
+    @if($folder->description && !filter_var($folder->description, FILTER_VALIDATE_URL))
         <p>{{ $folder->description }}</p>
     @endif
 
-    {{-- 🔽 Filter Pencarian dan Jenis File --}}
+    {{-- Search bar dan Jenis File --}}
     <div style="margin: 20px 0; display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center;">
         <form method="GET" style="display: flex; flex-wrap: wrap; gap: 10px;">
             <input type="text" name="search" placeholder="Cari"
@@ -48,18 +58,15 @@
         </form>
     </div>
 
-    {{-- 🔽 Daftar File --}}
     <div style="background: white; border-radius: 15px; padding: 20px; overflow-x: auto;">
         <table style="width: 100%; border-collapse: collapse; font-size: 15px; min-width: 900px;">
             <thead style="background-color: #f2f2f2;">
                 <tr>
-                    <th style="text-align: left; padding: 12px; width: 15%;">Judul File</th>
-                    <th style="text-align: center; padding: 12px; width: 25%;">Deskripsi File</th>
-                    <th style="text-align: center; padding: 12px; width: 10%;">Jenis File</th>
-                    <th style="text-align: center; padding: 12px; width: 10%;">File Size</th>
-                    <th style="text-align: center; padding: 12px; width: 12%;">Tanggal Unggah</th>
-                    <th style="text-align: center; padding: 12px; width: 12%;">Perubahan Terakhir</th>
-                    <th style="text-align: center; padding: 12px; width: 6%;">Aksi</th>
+                    <th style="text-align: left; padding: 12px; width: 20%;">Judul File</th>
+                    <th style="text-align: center; padding: 12px; width: 30%;">Deskripsi File</th>
+                    <th style="text-align: center; padding: 12px; width: 15%;">Jenis File</th>
+                    <th style="text-align: center; padding: 12px; width: 15%;">File Size</th>
+                    <th style="text-align: center; padding: 12px; width: 10%;">Aksi</th>
                 </tr>
             </thead>
             <tbody>
@@ -75,6 +82,7 @@
                             'jpeg' => 'jpeg.png',
                             'mp4' => 'mp4.png',
                             'zip' => 'zip.png',
+                            'mp3' => 'mp3.png'
                         ];
                         $icon = asset('assets/icons/' . ($customIcons[$extension] ?? 'icon_default.png'));
                     @endphp
@@ -86,7 +94,7 @@
                         </td>
 
                         {{-- Deskripsi File --}}
-                        <td style="padding: 12px; text-align: justify; word-wrap: break-word; width: 25%; ">
+                        <td style="padding: 12px; text-align: justify; word-wrap: break-word;">
                             @if($document->description)
                                 {{ $document->description }}
                             @endif
@@ -112,11 +120,6 @@
                             @endphp
                             {{ number_format($fileSizeMB, 2) }} MB
                         </td>
-                        {{-- Tanggal Upload --}}
-                        <td style="text-align: center;">{{ \Carbon\Carbon::parse($document->created_at)->format('d M Y') }}</td>
-
-                        {{-- Perubahan Terakhir --}}
-                        <td style="text-align: center;">{{ $document->updated_at ? \Carbon\Carbon::parse($document->updated_at)->format('d M Y') : '-' }}</td>
 
                         {{-- Aksi --}}
                         <td style="text-align: center; white-space: nowrap;">
@@ -131,7 +134,7 @@
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="7" style="text-align: center; padding: 30px; color: #aaa;">Belum ada file di folder ini.</td>
+                        <td colspan="5" style="text-align: center; padding: 30px; color: #aaa;">Belum ada file di folder ini.</td>
                     </tr>
                 @endforelse
             </tbody>
@@ -142,31 +145,12 @@
 {{-- CSS Responsive --}}
 <style>
     @media (max-width: 768px) {
-        div[style*="padding: 40px;"] {
-            padding: 20px !important;
-        }
-
-        table {
-            min-width: 100%;
-        }
-
-        th, td {
-            font-size: 13px !important;
-            padding: 8px !important;
-        }
-
-        form[method="GET"] {
-            flex-direction: column;
-        }
-
-        form[method="GET"] input,
-        form[method="GET"] select {
-            width: 100% !important;
-        }
-
-        h2 {
-            font-size: 20px !important;
-        }
+        div[style*="padding: 40px;"] { padding: 20px !important; }
+        table { min-width: 100%; }
+        th, td { font-size: 13px !important; padding: 8px !important; }
+        form[method="GET"] { flex-direction: column; }
+        form[method="GET"] input, form[method="GET"] select { width: 100% !important; }
+        h2 { font-size: 20px !important; }
     }
 </style>
 @endsection

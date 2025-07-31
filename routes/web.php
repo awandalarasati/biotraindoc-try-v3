@@ -16,7 +16,7 @@ Route::middleware('guest')->group(function () {
     Route::get('/register', [AuthController::class, 'showRegisterForm'])->name('register');
     Route::post('/register', [AuthController::class, 'register']);
 
-    // ✅ Forgot & Reset Password
+    // Forgot & Reset Password
     Route::get('forgot-password', [ForgotPasswordController::class, 'showLinkRequestForm'])->name('password.request');
     Route::post('forgot-password', [ForgotPasswordController::class, 'sendResetLinkEmail'])->name('password.email');
     Route::get('reset-password/{token}', [ResetPasswordController::class, 'showResetForm'])->name('password.reset');
@@ -46,7 +46,7 @@ Route::middleware('auth')->group(function () {
         Route::get('{id}/preview', [DocumentController::class, 'preview'])->name('preview');
     });
 
-    // ✅ Semua route untuk profil
+    // Profil
     Route::get('/profile', [ProfileController::class, 'show'])->name('profile');
 
     Route::get('/profile/edit-name', [ProfileController::class, 'editName'])->name('profile.edit.name');

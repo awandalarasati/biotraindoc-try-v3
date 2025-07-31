@@ -8,7 +8,7 @@ return new class extends Migration {
     public function up(): void
     {
         Schema::table('documents', function (Blueprint $table) {
-            $table->string('status')->default('relevan'); // default "relevan"
+            $table->string('status')->default('relevan');
         });
     }
 

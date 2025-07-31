@@ -12,12 +12,12 @@ class ResetPasswordNotification extends Notification
     use Queueable;
 
     public $token;
-    public $email; // Tambahkan ini
+    public $email;
 
-    public function __construct($token, $email) // tambahkan parameter email
+    public function __construct($token, $email)
     {
         $this->token = $token;
-        $this->email = $email; // Simpan email
+        $this->email = $email;
     }
 
     public function via($notifiable)
@@ -29,7 +29,7 @@ class ResetPasswordNotification extends Notification
     {
         $resetUrl = url(route('password.reset', [
             'token' => $this->token,
-            'email' => $this->email, // tambahkan email disini
+            'email' => $this->email,
         ], false));
 
         return (new MailMessage)

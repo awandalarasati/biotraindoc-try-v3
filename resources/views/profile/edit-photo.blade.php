@@ -23,16 +23,59 @@
                 @enderror
             </div>
 
-            <button type="submit"
-                style="background: #3b82f6; color: white; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer;">
-                Simpan
-            </button>
-
-            <a href="{{ route('profile') }}"
-                style="background: red; color: white; padding: 10px 20px; border-radius: 8px; text-decoration: none; margin-left: 10px;">
-                Kembali
-            </a>
+            {{-- Tombol Simpan & Kembali --}}
+            <div class="form-buttons">
+                <button type="submit" class="btn-save">Simpan</button>
+                    <a href="{{ route('profile') }}" class="btn-back">Kembali</a>
+            </div>
         </form>
     </div>
 </div>
+
+<style>
+    .form-buttons {
+        display: flex;
+        justify-content: flex-start;
+        gap: 10px;
+        flex-wrap: wrap;
+        margin-top: 20px;
+    }
+
+    .btn-save,
+    .btn-back {
+        padding: 10px 20px;
+        border-radius: 8px;
+        font-weight: bold;
+        color: white;
+        border: none;
+        cursor: pointer;
+        text-decoration: none;
+        white-space: nowrap;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 100px;
+        min-height: 40px;
+    }
+
+    .btn-save {
+        background-color: #3b82f6;
+    }
+
+    .btn-back {
+        background-color: red;
+    }
+
+    @media screen and (max-width: 375px) {
+        .form-buttons {
+            flex-direction: column;
+            align-items: stretch;
+        }
+
+        .btn-save,
+        .btn-back {
+            width: 100%;
+        }
+    }
+</style>
 @endsection

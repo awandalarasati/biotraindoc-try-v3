@@ -5,28 +5,19 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Biofarma Dokumentasi</title>
     <link rel="icon" href="{{ asset('assets/images/logo1.png') }}" type="image/png">
-
     <style>
-        /* RESET & BASE STYLE */
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
         html, body {
             height: 100%;
             background: linear-gradient(#b5f1ff, white);
             font-family: sans-serif;
-            overflow-x: hidden !important;
-            position: relative;
-            max-width: 100%;
-        }
-        body {
-            display: flex;
-            touch-action: pan-y;
+            overflow-x: hidden;
         }
 
-        /* === SIDEBAR === */
+        body {
+            display: flex;
+        }
+
         .sidebar {
             position: fixed;
             top: 0;
@@ -34,89 +25,75 @@
             height: 100vh;
             width: 250px;
             background: white;
-            box-shadow: 2px 0 5px rgba(0,0,0,0.1);
             border-radius: 0 20px 20px 0;
-            padding: 20px 15px;
+            box-shadow: 2px 0 5px rgba(0,0,0,0.1);
             display: flex;
             flex-direction: column;
-            transition: width 0.3s ease;
+            transition: all 0.3s ease;
             z-index: 1000;
-            overflow-x: hidden;
+            padding: 20px 15px;
         }
 
         .sidebar.collapsed {
-            width: 80px;
+            width: 70px;
         }
 
-        @media (max-width: 650px) {
-            .sidebar {
-                left: -250px;
-            }
-            .sidebar.open {
-                left: 0;
-            }
-        }
-
-        /* HEADER SIDEBAR */
-        .sidebar-header {
+        .sidebar .sidebar-header {
             display: flex;
-            align-items: center;   /* ✅ hamburger dan logo sejajar vertikal */
+            align-items: center;
+            justify-content: flex-start;
+            gap: 15px;
             margin-bottom: 30px;
-            padding: 4px 8px;
+            height: 60px;
         }
 
-        /* HAMBURGER ICON */
         .hamburger {
-            font-size: 24px;
+            font-size: 22px;
             background: none;
             border: none;
-            cursor: pointer;
             color: #029dbb;
-            width: 40px;
-            height: 40px;
+            cursor: pointer;
+            width: 36px;
+            height: 36px;
             display: flex;
             align-items: center;
             justify-content: center;
-            margin-right: 8px;
+            flex-shrink: 0;
         }
 
-        /* LOGO BIOFARMA */
         .logo {
-            width: 120px;       /* ✅ logo besar kembali */
-            height: auto;
-            margin-left: 10px;  /* ✅ sedikit jarak dari hamburger */
-            transition: opacity 0.3s ease, width 0.3s ease;
+            height: 36px;
+            width: auto;
+            transition: all 0.3s ease;
+            flex-shrink: 0;
         }
 
         .sidebar.collapsed .logo {
-            opacity: 0;
             width: 0;
+            opacity: 0;
             visibility: hidden;
         }
 
-        /* MENU SIDEBAR */
         nav {
             display: flex;
             flex-direction: column;
             gap: 10px;
             flex: 1;
-            overflow-y: auto;
-        }
-        nav::-webkit-scrollbar {
-            display: none;
         }
 
         .nav-item {
             display: flex;
             align-items: center;
-            padding: 12px 15px;
+            padding: 12px;
             border-radius: 10px;
             color: #029dbb;
-            text-decoration: none;
             font-weight: bold;
+            text-decoration: none;
             font-size: 16px;
             transition: all 0.3s ease;
+            height: 48px;
         }
+
         .nav-item:hover,
         .nav-item.active {
             background-color: #029dbb;
@@ -125,7 +102,8 @@
 
         .nav-text {
             margin-left: 10px;
-            transition: opacity 0.3s ease;
+            transition: all 0.3s ease;
+            white-space: nowrap;
         }
 
         .sidebar.collapsed .nav-text {
@@ -133,81 +111,203 @@
             visibility: hidden;
         }
 
-        /* KONTEN */
         .content {
             flex: 1;
             margin-left: 250px;
             padding: 20px;
-            overflow-x: auto;
             transition: margin-left 0.3s ease;
             max-width: calc(100% - 250px);
         }
 
         .sidebar.collapsed ~ .content {
-            margin-left: 80px;
-            max-width: calc(100% - 80px);
+            margin-left: 70px;
+            max-width: calc(100% - 70px);
         }
 
-        @media (max-width: 650px) {
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(0,0,0,0.4);
+            z-index: 900;
+            display: none;
+        }
+
+        .overlay.show {
+            display: block;
+        }
+
+        .mobile-header {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 60px;
+            background: white;
+            border-bottom: 1px solid #e6e6e6;
+            z-index: 1100;
+            padding: 0 20px;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .mobile-header .hamburger {
+            font-size: 22px;
+            background: none;
+            border: none;
+            color: #029dbb;
+            cursor: pointer;
+            width: 36px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .mobile-header .logo {
+            height: 36px;
+            width: auto;
+        }
+
+        @media (max-width: 768px) {
+            .mobile-header {
+                display: flex;
+            }
+
+            .sidebar {
+                left: -250px;
+                transition: left 0.3s ease;
+                border-radius: 0 20px 20px 0;
+                width: 250px !important;
+                padding-top: 80px;
+            }
+
+            .sidebar .sidebar-header {
+                display: none;
+            }
+
+            .sidebar.open {
+                left: 0;
+            }
+
             .content {
-                margin-left: 0;
-                max-width: 100%;
+                margin-left: 0 !important;
+                max-width: 100% !important;
+                padding-top: 80px;
+            }
+
+            .sidebar.collapsed .nav-text,
+            .sidebar.collapsed .logo {
+                opacity: 1 !important;
+                visibility: visible !important;
+                width: auto !important;
+            }
+
+            .sidebar.collapsed {
+                width: 250px !important;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .mobile-header {
+                padding: 0 15px;
+            }
+            
+            .content {
+                padding: 15px;
+                padding-top: 75px;
+            }
+            
+            .mobile-header .logo {
+                height: 32px;
+            }
+            
+            .sidebar {
+                padding-top: 75px;
             }
         }
     </style>
 </head>
 <body>
-
-    {{-- ==== SIDEBAR ==== --}}
-    <div id="sidebar" class="sidebar">
-        <div class="sidebar-header">
-            <button id="toggle-btn" class="hamburger">☰</button>
-            <img src="{{ asset('assets/images/logo.png') }}" alt="Logo" class="logo">
-        </div>
-
-        <nav>
-            <a href="{{ route('dashboard') }}" class="nav-item {{ request()->routeIs('dashboard') ? 'active' : '' }}">
-                📁 <span class="nav-text">Dashboard</span>
-            </a>
-
-            @php
-                $currentRoute = request()->route();
-                $folderId = $currentRoute?->parameter('id') ?? $currentRoute?->parameter('folder_id') ?? null;
-            @endphp
-
-            @if ($folderId)
-                <a href="{{ route('documents.create', ['folder_id' => $folderId]) }}" class="nav-item {{ request()->routeIs('documents.create') ? 'active' : '' }}">
-                    ➕ <span class="nav-text">Tambah File</span>
-                </a>
-            @else
-                <a href="{{ route('folders.create') }}" class="nav-item {{ request()->routeIs('folders.create') ? 'active' : '' }}">
-                    ➕ <span class="nav-text">Tambah Folder</span>
-                </a>
-            @endif
-
-            <a href="{{ route('profile') }}" class="nav-item {{ request()->routeIs('profile') ? 'active' : '' }}">
-                👤 <span class="nav-text">Profil</span>
-            </a>
-        </nav>
+    <div class="mobile-header" id="mobile-header">
+        <button id="mobile-toggle-btn" class="hamburger">☰</button>
+        <img src="{{ asset('assets/images/logo.png') }}" alt="Logo" class="logo">
     </div>
 
-    {{-- ==== KONTEN ==== --}}
-    <div class="content">
+    @include('partials.sidebar')
+
+    <div id="overlay" class="overlay"></div>
+
+    <div class="content" id="main-content">
         @yield('content')
     </div>
 
     <script>
-        const toggleBtn = document.getElementById('toggle-btn');
-        const sidebar = document.getElementById('sidebar');
+        document.addEventListener('DOMContentLoaded', function () {
+            const toggleBtn = document.getElementById('toggle-btn');
+            const mobileToggleBtn = document.getElementById('mobile-toggle-btn');
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('overlay');
+            const content = document.getElementById('main-content');
 
-        toggleBtn.addEventListener('click', () => {
-            if (window.innerWidth <= 650) {
-                sidebar.classList.toggle('open');   // Mobile: slide sidebar
-            } else {
-                sidebar.classList.toggle('collapsed'); // Desktop: collapse sidebar
+            function handleSidebarToggle() {
+                if (window.innerWidth <= 768) {
+                    // Mobile behavior
+                    sidebar.classList.toggle('open');
+                    overlay.classList.toggle('show');
+                } else {
+                    // Desktop behavior
+                    sidebar.classList.toggle('collapsed');
+                }
             }
+
+            function closeMobileSidebar() {
+                if (window.innerWidth <= 768) {
+                    sidebar.classList.remove('open');
+                    overlay.classList.remove('show');
+                }
+            }
+
+            // Desktop hamburger button
+            if (toggleBtn) {
+                toggleBtn.addEventListener('click', handleSidebarToggle);
+            }
+
+            // Mobile hamburger button
+            if (mobileToggleBtn) {
+                mobileToggleBtn.addEventListener('click', handleSidebarToggle);
+            }
+
+            // Overlay click to close sidebar on mobile
+            if (overlay) {
+                overlay.addEventListener('click', closeMobileSidebar);
+            }
+
+            // Handle window resize
+            window.addEventListener('resize', () => {
+                if (window.innerWidth > 768) {
+                    // Desktop mode
+                    sidebar.classList.remove('open');
+                    overlay.classList.remove('show');
+                } else {
+                    // Mobile mode - remove collapsed state
+                    sidebar.classList.remove('collapsed');
+                }
+            });
+
+            // Close mobile sidebar when clicking nav items
+            const navItems = document.querySelectorAll('.nav-item');
+            navItems.forEach(item => {
+                item.addEventListener('click', () => {
+                    if (window.innerWidth <= 768) {
+                        setTimeout(closeMobileSidebar, 100);
+                    }
+                });
+            });
         });
     </script>
-
 </body>
 </html>

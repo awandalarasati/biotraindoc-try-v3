@@ -17,18 +17,19 @@
             <div style="margin-bottom: 20px;">
                 <label for="tna_code" style="display: block; margin-bottom: 5px;">Kode TNA</label>
                 <input type="text" name="tna_code" id="tna_code"
-                    style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 8px;">
-                    @error('tna_code')
-                        <div style="color: red; font-size: 14px; margin-top: 5px;">
-                            {{ $message }}
-                        </div>
-                    @enderror
+                       style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 8px;">
+                @error('tna_code')
+                    <div style="color: red; font-size: 14px; margin-top: 5px;">
+                        {{ $message }}
+                    </div>
+                @enderror
             </div>
 
-
+            <!-- ✅ Tambahan: bisa diisi teks atau link -->
             <div style="margin-bottom: 20px;">
-                <label for="description" style="display: block; margin-bottom: 5px;">Deskripsi Folder</label>
+                <label for="description" style="display: block; margin-bottom: 5px;">Deskripsi / Link Dokumentasi</label>
                 <textarea name="description" id="description" rows="4"
+                          placeholder="Isi dengan teks atau link dokumentasi (opsional)"
                           style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 8px;"></textarea>
             </div>
 
