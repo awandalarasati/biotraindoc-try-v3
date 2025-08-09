@@ -52,10 +52,10 @@
                     style="width: 100%; padding: 12px; border-radius: 8px; border: 1px solid #ccc; margin-top: 10px; display: none;">
             </div>
 
-            {{-- Tombol Unggah --}}
+            {{-- Tombol Simpan --}}
             <button type="submit"
                 style="padding: 12px 30px; background-color: #029dbb; color: white; border: none; border-radius: 10px; font-weight: bold;">
-                Unggah
+                Simpan
             </button>
         </form>
     </div>
