@@ -101,7 +101,6 @@
     .heading-sub { color: #029dbb; font-size: 22px; border-bottom: 2px solid #029dbb; padding-bottom: 10px; }
     .table-responsive { width: 100%; overflow-x: auto; }
 
-    /* pakai border-separate + separator di <tr> agar garis rapi di semua zoom */
     .folder-table {
         width: 100%;
         border-collapse: separate;
@@ -121,7 +120,6 @@
         border-bottom: 1px solid #e6e6e6;
     }
 
-    /* separator baris: satu garis untuk seluruh baris */
     .folder-table tbody tr {
         position: relative;
     }
@@ -133,7 +131,7 @@
         background: #e6e6e6;
         pointer-events: none;
     }
-    /* baris tanpa separator (mis. baris kosong) */
+    
     .folder-table .row-sep-none::after { display: none; }
 
     .folder-link { text-decoration: none; color: #029dbb; display: flex; align-items: center; gap: 10px; }
@@ -148,14 +146,13 @@
         line-height: 1.5;
         min-height: 40px;
         text-align:center;
-        padding: 8px; /* boleh beda, separator tetap konsisten karena ada di <tr> */
+        padding: 8px;
     }
     .desc-cell.long-text{ justify-content:flex-start; text-align:justify; }
     .desc-cell.only-icon{ justify-content:center; text-align:center; }
 
     .nowrap { white-space: nowrap; }
 
-    /* Hilangkan underline & baseline shift pada ikon link */
     .desc-cell a,
     .desc-cell a:visited,
     .desc-cell a:hover,
@@ -174,7 +171,6 @@
     }
     .link-icon:hover{ color:#005f75; }
 
-    /* Modal */
     .modal-overlay {
         position: fixed; top: 0; left: 0; width: 100%; height: 100%;
         background-color: rgba(0, 0, 0, 0.5); z-index: 1000;

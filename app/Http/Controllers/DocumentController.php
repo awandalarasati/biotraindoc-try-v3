@@ -27,11 +27,23 @@ class DocumentController extends Controller
 
     public function store(Request $request)
     {
+        // ---- Normalisasi jenis_file dari dropdown/custom (jaga-jaga)
+        $jenis = $request->input('jenis_file');
+        if ($jenis === 'custom' || empty($jenis)) {
+            // dari form create, JS sudah mengubah name jadi jenis_file.
+            // kalau belum, ambil dari input cadangan.
+            $jenis = $request->input('custom_jenis') ?: $request->input('custom_jenis_hidden');
+        }
+        if ($jenis) {
+            $request->merge(['jenis_file' => $jenis]);
+        }
+        // -------------------------------------------------------------
+
         $request->validate([
             'folder_id'   => 'required|exists:folders,id',
             'title'       => 'required|string|max:255',
             'description' => 'nullable|string',
-            'document'    => 'required|file|max:204800',
+            'document'    => 'required|file|max:204800', // 200 MB
             'jenis_file'  => 'required|string|max:255',
         ]);
 
@@ -49,9 +61,9 @@ class DocumentController extends Controller
             'jenis_file'    => $request->jenis_file,
         ]);
 
-        // ✅ Update updated_at folder setiap kali ada file baru
+        // update timestamp folder
         $folder = Folder::find($request->folder_id);
-        $folder->touch();
+        $folder?->touch();
 
         return redirect()->route('folders.show', $request->folder_id)
                          ->with('success', 'File berhasil diunggah.');
@@ -62,7 +74,7 @@ class DocumentController extends Controller
         $document = Document::findOrFail($id);
         $folder = $document->folder;
 
-        $hour = now('Asia/Jakarta')->format('H');
+        $hour = Carbon::now('Asia/Jakarta')->format('H');
         $greeting = match (true) {
             $hour >= 5 && $hour < 12 => 'Selamat pagi!',
             $hour >= 12 && $hour < 15 => 'Selamat siang!',
@@ -77,10 +89,20 @@ class DocumentController extends Controller
     {
         $document = Document::findOrFail($id);
 
+        // ---- Normalisasi jenis_file dari dropdown/custom (penting untuk Edit)
+        $jenis = $request->input('jenis_file');
+        if ($jenis === 'custom' || empty($jenis)) {
+            $jenis = $request->input('custom_jenis') ?: $request->input('custom_jenis_hidden');
+        }
+        if ($jenis) {
+            $request->merge(['jenis_file' => $jenis]);
+        }
+        // ---------------------------------------------------------------
+
         $request->validate([
             'title'       => 'required|string|max:255',
             'description' => 'nullable|string',
-            'file'        => 'nullable|file|max:204800',
+            'file'        => 'nullable|file|max:204800', // 200 MB
             'jenis_file'  => 'required|string|max:255',
         ]);
 
@@ -106,8 +128,8 @@ class DocumentController extends Controller
 
         $document->update($data);
 
-        // ✅ Update updated_at folder setiap kali ada file diubah
-        $document->folder->touch();
+        // update timestamp folder
+        $document->folder?->touch();
 
         return redirect()->route('folders.show', $document->folder_id)
                          ->with('success', 'File berhasil diperbarui.');
@@ -124,9 +146,7 @@ class DocumentController extends Controller
 
         $document->delete();
 
-        // ✅ Update updated_at folder setiap kali ada file dihapus
-        $folder = Folder::find($folder_id);
-        $folder->touch();
+        Folder::find($folder_id)?->touch();
 
         return redirect()->route('folders.show', $folder_id)
                          ->with('success', 'File berhasil dihapus.');
@@ -147,7 +167,7 @@ class DocumentController extends Controller
             }
         }
 
-        $hour = now('Asia/Jakarta')->format('H');
+        $hour = Carbon::now('Asia/Jakarta')->format('H');
         $greeting = match (true) {
             $hour >= 5 && $hour < 12 => 'Selamat pagi!',
             $hour >= 12 && $hour < 15 => 'Selamat siang!',

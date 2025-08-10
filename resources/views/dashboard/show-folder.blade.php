@@ -281,7 +281,6 @@
         }
     }
 
-    /* Responsive Modal */
     @media (max-width: 768px) {
         .modal-content {
             min-width: 300px;
@@ -298,7 +297,6 @@
         }
     }
 
-    /* Existing responsive styles */
     @media (max-width: 768px) {
         div[style*="padding: 40px;"] { padding: 20px !important; }
         table { min-width: 100%; }
@@ -307,7 +305,6 @@
         form[method="GET"] input, form[method="GET"] select { width: 100% !important; }
         h2 { font-size: 20px !important; }
         
-        /* Responsive untuk deskripsi justify */
         td[style*="text-align: justify"] {
             text-align: left !important;
             hyphens: none !important;
