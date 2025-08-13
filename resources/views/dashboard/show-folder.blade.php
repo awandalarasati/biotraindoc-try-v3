@@ -164,7 +164,6 @@
 </div>
 
 <style>
-    /* Modal Styles */
     .modal-overlay {
         position: fixed;
         top: 0;
@@ -320,27 +319,22 @@ document.addEventListener('DOMContentLoaded', function() {
     const filenameDisplay = document.querySelector('.filename-display');
     let currentForm = null;
 
-    // Handle delete button clicks
     document.querySelectorAll('.delete-btn').forEach(function(btn) {
         btn.addEventListener('click', function() {
             currentForm = this.closest('.delete-form');
             const filename = currentForm.getAttribute('data-filename');
-            
-            // Update modal content
+
             filenameDisplay.textContent = filename;
-            
-            // Show modal
+ 
             modal.style.display = 'flex';
             document.body.style.overflow = 'hidden';
         });
     });
 
-    // Handle cancel button
     cancelBtn.addEventListener('click', function() {
         hideModal();
     });
 
-    // Handle confirm button
     confirmBtn.addEventListener('click', function() {
         if (currentForm) {
             currentForm.submit();
@@ -348,14 +342,12 @@ document.addEventListener('DOMContentLoaded', function() {
         hideModal();
     });
 
-    // Close modal when clicking overlay
     modal.addEventListener('click', function(e) {
         if (e.target === modal) {
             hideModal();
         }
     });
 
-    // Close modal with ESC key
     document.addEventListener('keydown', function(e) {
         if (e.key === 'Escape' && modal.style.display === 'flex') {
             hideModal();

@@ -94,7 +94,6 @@
         </h4>
     </div>
 
-    {{-- Container untuk menyamakan panjang --}}
     <div style="max-width: 700px; margin: 30px auto 0; display: flex; flex-direction: column; gap: 25px;">
         
         {{-- Informasi Akun --}}

@@ -6,12 +6,12 @@
     </div>
 
     <nav>
-        {{-- 📁 Menu Dashboard --}}
+        {{-- Menu Dashboard --}}
         <a href="{{ route('dashboard') }}" class="nav-item {{ request()->routeIs('dashboard') ? 'active' : '' }}">
             📁 <span class="nav-text">Dashboard</span>
         </a>
 
-        {{-- 🔍 Tentukan menu Tambah yang tepat --}}
+        {{-- Tentukan menu Tambah yang tepat --}}
         @php
             // Cek apakah sedang di halaman dokumen (upload file / list file)
             $isDocumentPage = request()->is('documents*');
@@ -25,20 +25,17 @@
         @endphp
 
         @if ($isDocumentPage || $isInsideFolder)
-            {{-- ✅ Kalau di halaman file atau sedang lihat isi folder, tampilkan Tambah File --}}
             <a href="{{ isset($folderId) ? route('documents.create', ['folder_id' => $folderId]) : '#' }}"
                class="nav-item {{ request()->routeIs('documents.create') ? 'active' : '' }}">
                 ➕ <span class="nav-text">Tambah File</span>
             </a>
         @else
-            {{-- ✅ Selain itu (dashboard folder, tambah/edit folder) tampilkan Tambah Folder --}}
             <a href="{{ route('folders.create') }}"
                class="nav-item {{ request()->routeIs('folders.create') ? 'active' : '' }}">
                 ➕ <span class="nav-text">Tambah Folder</span>
             </a>
         @endif
 
-        {{-- 👤 Menu Profil --}}
         <a href="{{ route('profile') }}" class="nav-item {{ request()->routeIs('profile') ? 'active' : '' }}">
             👤 <span class="nav-text">Profil</span>
         </a>

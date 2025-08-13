@@ -59,7 +59,6 @@
     </div>
 </div>
 
-{{-- Style modal sama dengan edit.blade.php --}}
 <style>
     .modal-overlay {
         position: fixed;

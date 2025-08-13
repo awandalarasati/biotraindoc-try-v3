@@ -16,7 +16,6 @@ class AppServiceProvider extends ServiceProvider
 
     public function boot(): void
     {
-        // ✅ Global greeting untuk semua view
         View::composer('*', function ($view) {
             $hour = Carbon::now('Asia/Jakarta')->format('H');
             if ($hour >= 5 && $hour < 12) {

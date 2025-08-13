@@ -119,7 +119,7 @@
         }
     }
 </style>
-{{-- JavaScript untuk toggle icon mata --}}
+
 <script>
     function togglePassword(fieldId) {
         const input = document.getElementById(fieldId);

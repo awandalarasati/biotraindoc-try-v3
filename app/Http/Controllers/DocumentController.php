@@ -27,23 +27,19 @@ class DocumentController extends Controller
 
     public function store(Request $request)
     {
-        // ---- Normalisasi jenis_file dari dropdown/custom (jaga-jaga)
         $jenis = $request->input('jenis_file');
         if ($jenis === 'custom' || empty($jenis)) {
-            // dari form create, JS sudah mengubah name jadi jenis_file.
-            // kalau belum, ambil dari input cadangan.
             $jenis = $request->input('custom_jenis') ?: $request->input('custom_jenis_hidden');
         }
         if ($jenis) {
             $request->merge(['jenis_file' => $jenis]);
         }
-        // -------------------------------------------------------------
 
         $request->validate([
             'folder_id'   => 'required|exists:folders,id',
             'title'       => 'required|string|max:255',
             'description' => 'nullable|string',
-            'document'    => 'required|file|max:204800', // 200 MB
+            'document'    => 'required|file|max:204800',
             'jenis_file'  => 'required|string|max:255',
         ]);
 
@@ -61,10 +57,8 @@ class DocumentController extends Controller
             'jenis_file'    => $request->jenis_file,
         ]);
 
-        // update timestamp folder
         $folder = Folder::find($request->folder_id);
         $folder?->touch();
-
         return redirect()->route('folders.show', $request->folder_id)
                          ->with('success', 'File berhasil diunggah.');
     }
@@ -88,8 +82,6 @@ class DocumentController extends Controller
     public function update(Request $request, $id)
     {
         $document = Document::findOrFail($id);
-
-        // ---- Normalisasi jenis_file dari dropdown/custom (penting untuk Edit)
         $jenis = $request->input('jenis_file');
         if ($jenis === 'custom' || empty($jenis)) {
             $jenis = $request->input('custom_jenis') ?: $request->input('custom_jenis_hidden');
@@ -97,12 +89,11 @@ class DocumentController extends Controller
         if ($jenis) {
             $request->merge(['jenis_file' => $jenis]);
         }
-        // ---------------------------------------------------------------
 
         $request->validate([
             'title'       => 'required|string|max:255',
             'description' => 'nullable|string',
-            'file'        => 'nullable|file|max:204800', // 200 MB
+            'file'        => 'nullable|file|max:204800',
             'jenis_file'  => 'required|string|max:255',
         ]);
 
@@ -127,8 +118,6 @@ class DocumentController extends Controller
         }
 
         $document->update($data);
-
-        // update timestamp folder
         $document->folder?->touch();
 
         return redirect()->route('folders.show', $document->folder_id)

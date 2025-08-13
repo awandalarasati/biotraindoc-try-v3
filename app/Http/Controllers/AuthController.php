@@ -50,10 +50,8 @@ class AuthController extends Controller
                 'regex:/^(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).+$/'
             ],
         ], [
-            // Semua rule password (min, regex, required, dsb) akan pakai pesan ini
             'password.*' => 'Password setidaknya harus 8 karakter dan mengandung minimal satu huruf kapital, satu angka, serta satu simbol.',
 
-            // Khusus untuk konfirmasi password tetap pesan sendiri
             'password.confirmed' => 'Konfirmasi password tidak sesuai dengan password.'
         ]);
 

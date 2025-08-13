@@ -46,8 +46,6 @@ class FolderController extends Controller
         ]);
 
         $folder = Folder::create($request->only(['title', 'description', 'tna_code']));
-
-        // ✅ Update updated_at setelah folder dibuat (meskipun Eloquent otomatis mengisi, kita pastikan tetap segar)
         $folder->touch();
 
         return redirect()->route('dashboard')->with('success', 'Folder berhasil dibuat.');
@@ -95,8 +93,6 @@ class FolderController extends Controller
 
         $folder = Folder::findOrFail($id);
         $folder->update($request->only(['title', 'description', 'tna_code']));
-
-        // ✅ Update updated_at setiap kali folder diubah
         $folder->touch();
 
         return redirect()->route('dashboard')->with('success', 'Folder berhasil diperbarui.');
@@ -105,12 +101,8 @@ class FolderController extends Controller
     public function destroy($id)
     {
         $folder = Folder::findOrFail($id);
-
-        // ✅ Sebelum menghapus, kita sentuh dulu supaya update terakhir tercatat
         $folder->touch();
-
         $folder->delete();
-
         return redirect()->route('dashboard')->with('success', 'Folder berhasil dihapus.');
     }
 }

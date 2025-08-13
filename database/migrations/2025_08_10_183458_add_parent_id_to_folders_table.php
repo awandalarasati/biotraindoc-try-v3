@@ -12,7 +12,7 @@ return new class extends Migration {
                 $table->foreignId('parent_id')
                       ->nullable()
                       ->constrained('folders')
-                      ->nullOnDelete(); // jika parent dihapus, parent_id anak jadi NULL
+                      ->nullOnDelete();
             }
         });
     }

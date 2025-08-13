@@ -28,7 +28,6 @@
                           style="width: 100%; padding: 12px; border-radius: 8px; border: 1px solid #ccc;">{{ old('description', $document->description) }}</textarea>
             </div>
 
-            {{-- File (opsional ganti) --}}
             <div style="margin-bottom: 20px;">
                 <label for="file" style="font-weight: bold; color: #029dbb;">File</label>
                 <p style="margin-top: 8px; color: #555;">
@@ -44,8 +43,6 @@
                     *Format yang didukung: .png, .jpg, .jpeg, .pdf, .mp4, .docx, .xlsx, .zip
                 </p>
             </div>
-
-            {{-- Jenis File (sama seperti form create) --}}
             @php
                 $presetJenis = ['SPRL', 'Dokumentasi', 'Daftar Hadir'];
                 $currentJenis = old('jenis_file', $document->jenis_file);
@@ -93,7 +90,6 @@
 </div>
 
 <style>
-/* (CSS modal sama seperti sebelumnya) */
 .modal-overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.5);display:flex;justify-content:center;align-items:center;z-index:9999;}
 .modal-content{background:#fff;border-radius:12px;min-width:380px;max-width:450px;box-shadow:0 10px 30px rgba(0,0,0,.3);overflow:hidden;}
 .modal-header{background:#f8f9fa;padding:18px 24px;border-bottom:1px solid #e9ecef;}
@@ -113,22 +109,19 @@
 function openEditModal(){ document.getElementById('editModal').style.display='flex'; }
 function closeEditModal(){ document.getElementById('editModal').style.display='none'; }
 function submitEditFile(){ document.getElementById('edit-file-form').submit(); }
-
-// === SAMAKAN PERILAKU DENGAN CREATE ===
 function toggleCustomJenisEdit(){
     const dd  = document.getElementById('jenis_file');
     const ci  = document.getElementById('custom_jenis');
     if (dd.value === 'custom') {
         ci.style.display = 'block';
-        // kunci penting: custom input dikirim sebagai jenis_file
         ci.name = 'jenis_file';
     } else {
         ci.style.display = 'none';
-        ci.name = 'custom_jenis_hidden'; // supaya tidak meng-overwrite
+        ci.name = 'custom_jenis_hidden';
     }
 }
 
-// set state awal berdasarkan nilai sekarang
+
 document.addEventListener('DOMContentLoaded', function () {
     const preset = ['SPRL','Dokumentasi','Daftar Hadir'];
     const current = @json($currentJenis);
