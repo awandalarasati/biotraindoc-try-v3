@@ -6,11 +6,14 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Facades\Hash;
-use App\Models\User;
+use Illuminate\Support\Str;
+use Illuminate\Auth\Events\PasswordReset;
 
 class ResetPasswordController extends Controller
 {
-
+    /**
+     * Tampilkan form reset password.
+     */
     public function showResetForm(Request $request, $token = null)
     {
         return view('auth.reset-password', [
@@ -19,27 +22,41 @@ class ResetPasswordController extends Controller
         ]);
     }
 
-
+    /**
+     * Proses reset/update password.
+     */
     public function reset(Request $request)
     {
-        // Validasi input
         $request->validate([
-            'token' => 'required',
-            'email' => 'required|email',
-            'password' => 'required|min:8|confirmed',
+            'token' => ['required'],
+            'email' => ['required', 'email'],
+            'password' => [
+                'required',
+                'string',
+                'min:8',
+                'confirmed',
+                'regex:/^(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).+$/',
+            ],
+        ], [
+            'password.min'       => 'Password setidaknya harus 8 karakter dan mengandung minimal satu huruf kapital, satu angka, serta satu simbol.',
+            'password.regex'     => 'Password setidaknya harus 8 karakter dan mengandung minimal satu huruf kapital, satu angka, serta satu simbol.',
+            'password.confirmed' => 'Konfirmasi password tidak sesuai.',
         ]);
 
-        // Cari user berdasarkan email
-        $user = User::where('email', $request->email)->first();
+        $status = Password::reset(
+            $request->only('email', 'password', 'password_confirmation', 'token'),
+            function ($user) use ($request) {
+                $user->forceFill([
+                    'password' => Hash::make($request->password),
+                    'remember_token' => Str::random(60),
+                ])->save();
 
-        if (!$user) {
-            return back()->withErrors(['email' => 'Email tidak ditemukan di sistem kami.']);
-        }
+                event(new PasswordReset($user));
+            }
+        );
 
-        // Update password user
-        $user->password = Hash::make($request->password);
-        $user->save();
-
-        return redirect()->route('login')->with('status', 'Password berhasil direset. Silakan login dengan password baru.');
+        return $status === Password::PASSWORD_RESET
+            ? redirect()->route('login')->with('status', __($status))
+            : back()->withErrors(['email' => __($status)]);
     }
 }

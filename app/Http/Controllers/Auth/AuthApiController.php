@@ -12,7 +12,7 @@ class AuthApiController extends Controller
     public function login(Request $request)
     {
         $cred = $request->validate([
-            'login'    => 'required|string', // email ATAU username
+            'login'    => 'required|string',
             'password' => 'required|string',
         ]);
 

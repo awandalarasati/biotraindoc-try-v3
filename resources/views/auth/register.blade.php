@@ -72,7 +72,7 @@
                         <img src="{{ asset('assets/icons/eye.png') }}" alt="Show" class="icon-eye" id="togglePasswordConfirm">
                     </div>
 
-                    <button type="submit" class="w-full bg-[#029dbb] text-white py-3 rounded-lg hover:bg-[#027a96] transition duration-200 font-bold">Register</button>
+                    <button type="submit" class="w-full bg-[#029dbb] text-white py-3 rounded-lg hover:bg-[#027a96] transition duration-200 font-bold">Daftar Akun</button>
                 </form>
 
                 <div class="mt-5 text-center text-sm">
