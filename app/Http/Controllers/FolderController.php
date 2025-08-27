@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Folder;
+use App\Models\Document;
+use Carbon\Carbon;
 
 class FolderController extends Controller
 {
@@ -51,26 +53,54 @@ class FolderController extends Controller
         return redirect()->route('dashboard')->with('success', 'Folder berhasil dibuat.');
     }
 
-    public function show($id)
+    public function show($id, Request $request)
     {
         $folder = Folder::findOrFail($id);
 
-        $documents = $folder->documents();
+        // Query dasar untuk dokumen dalam folder
+        $query = Document::where('folder_id', $id);
 
-        if (request('jenis_file')) {
-            $documents->where('jenis_file', request('jenis_file'));
+        // Filter berdasarkan pencarian
+        if ($request->filled('search')) {
+            $query->where('title', 'like', '%' . $request->search . '%');
         }
 
-        if (request('search')) {
-            $documents->where('title', 'like', '%' . request('search') . '%');
+        // Filter berdasarkan jenis file
+        if ($request->filled('jenis_file')) {
+            $query->where('jenis_file', $request->jenis_file);
         }
 
-        $folder->documents = $documents->get();
+        // Filter berdasarkan waktu pelaksanaan
+        if ($request->filled('waktu_pelaksanaan')) {
+            $filterWaktu = $request->waktu_pelaksanaan;
+            $now = Carbon::now();
 
-        $jenisFiles = $folder->documents()
-            ->select('jenis_file')
-            ->distinct()
-            ->pluck('jenis_file');
+            switch ($filterWaktu) {
+                case '1_bulan':
+                    $startDate = $now->copy()->subMonth();
+                    $query->where('created_at', '>=', $startDate);
+                    break;
+                case '3_bulan':
+                    $startDate = $now->copy()->subMonths(3);
+                    $query->where('created_at', '>=', $startDate);
+                    break;
+                case '6_bulan':
+                    $startDate = $now->copy()->subMonths(6);
+                    $query->where('created_at', '>=', $startDate);
+                    break;
+            }
+        }
+
+        // Ambil hasil query dan assign ke folder
+        $documents = $query->orderBy('created_at', 'desc')->get();
+        $folder->documents = $documents;
+
+        // Ambil semua jenis file untuk dropdown filter (dari semua dokumen di folder, bukan yang sudah difilter)
+        $jenisFiles = Document::where('folder_id', $id)
+                            ->select('jenis_file')
+                            ->distinct()
+                            ->whereNotNull('jenis_file')
+                            ->pluck('jenis_file');
 
         return view('dashboard.show-folder', compact('folder', 'jenisFiles'));
     }
@@ -101,7 +131,14 @@ class FolderController extends Controller
     public function destroy($id)
     {
         $folder = Folder::findOrFail($id);
-        $folder->touch();
+        
+        // Hapus semua file yang terkait
+        foreach ($folder->documents as $document) {
+            if ($document->file_path) {
+                \Storage::disk('public')->delete($document->file_path);
+            }
+        }
+        
         $folder->delete();
         return redirect()->route('dashboard')->with('success', 'Folder berhasil dihapus.');
     }

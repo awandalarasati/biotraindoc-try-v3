@@ -12,10 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('documents', function (Blueprint $table) {
-            // Tambahkan kolom original_name jika belum ada
-            if (!Schema::hasColumn('documents', 'original_name')) {
-                $table->string('original_name')->nullable()->after('file_size');
-            }
+            $table->string('waktu_pelaksanaan')->nullable()->after('description');
         });
     }
 
@@ -25,9 +22,7 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('documents', function (Blueprint $table) {
-            if (Schema::hasColumn('documents', 'original_name')) {
-                $table->dropColumn('original_name');
-            }
+            $table->dropColumn('waktu_pelaksanaan');
         });
     }
 };

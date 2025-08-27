@@ -14,10 +14,12 @@ class Document extends Model
         'folder_id',
         'title',
         'description',
+        'waktu_pelaksanaan', // Tambahkan field ini
         'file_path',
         'file_name',
         'file_type',
         'file_size',
+        'original_name', // Tambahkan field ini juga
         'status',
         'jenis_file',
     ];
@@ -43,5 +45,4 @@ class Document extends Model
     {
         return $this->belongsTo(Folder::class);
     }
-
 }

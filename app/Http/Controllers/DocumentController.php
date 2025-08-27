@@ -36,25 +36,27 @@ class DocumentController extends Controller
         }
 
         $request->validate([
-            'folder_id'   => 'required|exists:folders,id',
-            'title'       => 'required|string|max:255',
+            'folder_id' => 'required|exists:folders,id',
+            'title' => 'required|string|max:255',
             'description' => 'nullable|string',
-            'document'    => 'required|file|max:204800',
-            'jenis_file'  => 'required|string|max:255',
+            'waktu_pelaksanaan' => 'nullable|string|max:255', // Tambahkan validasi ini
+            'document' => 'required|file|max:204800',
+            'jenis_file' => 'required|string|max:255',
         ]);
 
         $file = $request->file('document');
         $path = $file->store('uploads', 'public');
 
         $document = Document::create([
-            'folder_id'     => $request->folder_id,
-            'title'         => $request->title,
-            'description'   => $request->description,
-            'file_path'     => $path,
-            'file_type'     => $file->getClientOriginalExtension(),
-            'file_size'     => $file->getSize(),
+            'folder_id' => $request->folder_id,
+            'title' => $request->title,
+            'description' => $request->description,
+            'waktu_pelaksanaan' => $request->waktu_pelaksanaan, // Tambahkan field ini
+            'file_path' => $path,
+            'file_type' => $file->getClientOriginalExtension(),
+            'file_size' => $file->getSize(),
             'original_name' => $file->getClientOriginalName(),
-            'jenis_file'    => $request->jenis_file,
+            'jenis_file' => $request->jenis_file,
         ]);
 
         $folder = Folder::find($request->folder_id);
@@ -91,16 +93,18 @@ class DocumentController extends Controller
         }
 
         $request->validate([
-            'title'       => 'required|string|max:255',
+            'title' => 'required|string|max:255',
             'description' => 'nullable|string',
-            'file'        => 'nullable|file|max:204800',
-            'jenis_file'  => 'required|string|max:255',
+            'waktu_pelaksanaan' => 'nullable|string|max:255', // Tambahkan validasi ini
+            'file' => 'nullable|file|max:204800',
+            'jenis_file' => 'required|string|max:255',
         ]);
 
         $data = [
-            'title'       => $request->title,
+            'title' => $request->title,
             'description' => $request->description,
-            'jenis_file'  => $request->jenis_file,
+            'waktu_pelaksanaan' => $request->waktu_pelaksanaan, // Tambahkan field ini
+            'jenis_file' => $request->jenis_file,
         ];
 
         if ($request->hasFile('file')) {
@@ -111,9 +115,9 @@ class DocumentController extends Controller
             $file = $request->file('file');
             $path = $file->store('uploads', 'public');
 
-            $data['file_path']     = $path;
-            $data['file_type']     = $file->getClientOriginalExtension();
-            $data['file_size']     = $file->getSize();
+            $data['file_path'] = $path;
+            $data['file_type'] = $file->getClientOriginalExtension();
+            $data['file_size'] = $file->getSize();
             $data['original_name'] = $file->getClientOriginalName();
         }
 

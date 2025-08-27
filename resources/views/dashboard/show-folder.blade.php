@@ -41,7 +41,7 @@
         <p style="text-align: justify;">{{ $folder->description }}</p>
     @endif
 
-    {{-- Search bar dan Jenis File --}}
+    {{-- Search bar dan Filter --}}
     <div style="margin: 20px 0; display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center;">
         <form method="GET" style="display: flex; flex-wrap: wrap; gap: 10px;">
             <input type="text" name="search" placeholder="Cari"
@@ -58,15 +58,25 @@
                     </option>
                 @endforeach
             </select>
+
+            {{-- Filter Waktu Pelaksanaan --}}
+            <select name="waktu_pelaksanaan" onchange="this.form.submit()"
+                style="padding: 10px; border-radius: 8px; border: 1px solid #ccc;">
+                <option value="">Semua Waktu</option>
+                <option value="1_bulan" {{ request('waktu_pelaksanaan') == '1_bulan' ? 'selected' : '' }}>1 Bulan</option>
+                <option value="3_bulan" {{ request('waktu_pelaksanaan') == '3_bulan' ? 'selected' : '' }}>3 Bulan</option>
+                <option value="6_bulan" {{ request('waktu_pelaksanaan') == '6_bulan' ? 'selected' : '' }}>6 Bulan</option>
+            </select>
         </form>
     </div>
 
     <div style="background: white; border-radius: 15px; padding: 20px; overflow-x: auto;">
-        <table style="width: 100%; border-collapse: collapse; font-size: 15px; min-width: 900px;">
+        <table style="width: 100%; border-collapse: collapse; font-size: 15px; min-width: 1100px;">
             <thead style="background-color: #f2f2f2;">
                 <tr>
                     <th style="text-align: center; padding: 12px; width: 20%;">Judul File</th>
-                    <th style="text-align: center; padding: 12px; width: 30%;">Deskripsi File</th>
+                    <th style="text-align: center; padding: 12px; width: 25%;">Deskripsi File</th>
+                    <th style="text-align: center; padding: 12px; width: 15%;">Waktu Pelaksanaan</th>
                     <th style="text-align: center; padding: 12px; width: 15%;">Jenis File</th>
                     <th style="text-align: center; padding: 12px; width: 15%;">File Size</th>
                     <th style="text-align: center; padding: 12px; width: 10%;">Aksi</th>
@@ -104,6 +114,15 @@
                             @endif
                         </td>
 
+                        {{-- Waktu Pelaksanaan --}}
+                        <td style="text-align: center; padding: 12px;">
+                            @if($document->waktu_pelaksanaan)
+                                {{ $document->waktu_pelaksanaan }}
+                            @else
+                                <span style="color: #999; font-style: italic;">-</span>
+                            @endif
+                        </td>
+
                         {{-- Jenis File --}}
                         <td style="text-align: center;">
                             @if($document->jenis_file == 'SPRL')
@@ -138,7 +157,7 @@
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="5" style="text-align: center; padding: 30px; color: #aaa;">Belum ada file di folder ini.</td>
+                        <td colspan="6" style="text-align: center; padding: 30px; color: #aaa;">Belum ada file di folder ini.</td>
                     </tr>
                 @endforelse
             </tbody>

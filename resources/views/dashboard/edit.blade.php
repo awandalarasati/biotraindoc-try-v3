@@ -1,3 +1,5 @@
+<?php
+?>
 @extends('layouts.app')
 
 @section('content')
@@ -26,6 +28,17 @@
                 <label for="deskripsi" style="font-weight: bold; color: #029dbb;">Deskripsi File</label>
                 <textarea id="deskripsi" name="description" rows="4"
                           style="width: 100%; padding: 12px; border-radius: 8px; border: 1px solid #ccc;">{{ old('description', $document->description) }}</textarea>
+            </div>
+
+            {{-- Waktu Pelaksanaan --}}
+            <div style="margin-bottom: 20px;">
+                <label for="waktu_pelaksanaan" style="font-weight: bold; color: #029dbb;">Waktu Pelaksanaan</label>
+                <input type="text" id="waktu_pelaksanaan" name="waktu_pelaksanaan" placeholder="Contoh: 23 Juni 2025"
+                       value="{{ old('waktu_pelaksanaan', $document->waktu_pelaksanaan) }}"
+                       style="width: 100%; padding: 12px; border-radius: 8px; border: 1px solid #ccc;">
+                <p style="color: #666; font-size: 12px; margin-top: 5px;">
+                    *Masukkan waktu pelaksanaan secara manual (opsional)
+                </p>
             </div>
 
             <div style="margin-bottom: 20px;">
