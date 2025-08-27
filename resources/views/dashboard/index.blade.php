@@ -78,7 +78,7 @@
     </div>
 </div>
 
-{{-- Modal Dialog Konfirmasi Delete Folder --}}
+{{-- Dialog Konfirmasi Hapus Folder --}}
 <div id="deleteFolderModal" class="modal-overlay" style="display: none;">
     <div class="modal-content">
         <div class="modal-header">

@@ -74,7 +74,7 @@
     </div>
 </div>
 
-{{-- KONFIRMASI EDIT --}}
+{{-- Konfirmasi Edit --}}
 <div id="editModal" class="modal-overlay" style="display: none;">
     <div class="modal-content">
         <div class="modal-header"><h3>Konfirmasi Edit</h3></div>

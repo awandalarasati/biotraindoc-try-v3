@@ -12,7 +12,7 @@ use Illuminate\Auth\Events\PasswordReset;
 class ResetPasswordController extends Controller
 {
     /**
-     * Tampilkan form reset password.
+     * Menampilkan form reset password.
      */
     public function showResetForm(Request $request, $token = null)
     {

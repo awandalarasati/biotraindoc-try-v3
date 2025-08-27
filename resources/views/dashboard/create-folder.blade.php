@@ -12,6 +12,7 @@
         <form action="{{ route('folders.store') }}" method="POST" style="margin-top: 30px;">
             @csrf
 
+            {{-- Judul Folder --}}
             <div style="margin-bottom: 20px;">
                 <label for="title" style="font-weight: bold; color: #029dbb;">Judul Folder</label>
                 <input type="text" name="title" id="title" required
@@ -30,6 +31,7 @@
                 @enderror
             </div>
 
+                {{-- Deskripsi / Link Dokumentasi --}}
             <div style="margin-bottom: 20px;">
                 <label for="description" style="font-weight: bold; color: #029dbb;">Deskripsi / Link Dokumentasi</label>
                 <textarea name="description" id="description" rows="4"
