@@ -1,6 +1,3 @@
-<?php
-
-?>
 @extends('layouts.app')
 
 @section('content')
@@ -26,7 +23,6 @@
             </span>
         @endif
 
-        {{-- Tampilkan icon rantai (link) di sebelah badge kode TNA --}}
         @if($folder->description && filter_var($folder->description, FILTER_VALIDATE_URL))
             <a href="{{ $folder->description }}"
                target="_blank"
@@ -41,16 +37,15 @@
         <p style="text-align: justify;">{{ $folder->description }}</p>
     @endif
 
-    {{-- Search bar dan Filter --}}
     <div style="margin: 20px 0; display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center;">
-        <form method="GET" style="display: flex; flex-wrap: wrap; gap: 10px;">
-            <input type="text" name="search" placeholder="Cari"
-                value="{{ request('search') }}"
-                style="padding: 10px; border-radius: 8px; border: 1px solid #ccc; flex: 1; min-width: 150px;">
+        <form method="GET" action="{{ route('folders.show', $folder->id) }}" style="display: flex; flex-wrap: wrap; gap: 10px; align-items: center;" id="filterForm">
+            <input type="text"
+                   name="search"
+                   placeholder="Cari sesuai judul file"
+                   value="{{ request('search') }}"
+                   style="padding: 10px; border-radius: 8px; border: 1px solid #ccc; flex: 1; min-width: 150px;">
 
-            {{-- Dropdown filter Jenis File --}}
-            <select name="jenis_file" onchange="this.form.submit()"
-                style="padding: 10px; border-radius: 8px; border: 1px solid #ccc;">
+            <select name="jenis_file" onchange="submitForm()" style="padding: 10px; border-radius: 8px; border: 1px solid #ccc;">
                 <option value="">Semua Jenis File</option>
                 @foreach($jenisFiles as $jenis)
                     <option value="{{ $jenis }}" {{ request('jenis_file') == $jenis ? 'selected' : '' }}>
@@ -59,16 +54,71 @@
                 @endforeach
             </select>
 
-            {{-- Filter Waktu Pelaksanaan --}}
-            <select name="waktu_pelaksanaan" onchange="this.form.submit()"
-                style="padding: 10px; border-radius: 8px; border: 1px solid #ccc;">
-                <option value="">Semua Waktu</option>
-                <option value="1_bulan" {{ request('waktu_pelaksanaan') == '1_bulan' ? 'selected' : '' }}>1 Bulan</option>
-                <option value="3_bulan" {{ request('waktu_pelaksanaan') == '3_bulan' ? 'selected' : '' }}>3 Bulan</option>
-                <option value="6_bulan" {{ request('waktu_pelaksanaan') == '6_bulan' ? 'selected' : '' }}>6 Bulan</option>
-            </select>
+            {{-- Date Range Filter --}}
+            <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+                <label style="font-size: 14px; color: #029dbb; font-weight: bold;">Dari:</label>
+                <input type="date"
+                       name="dari_tanggal"
+                       value="{{ request('dari_tanggal') }}"
+                       onchange="submitForm()"
+                       style="padding: 8px; border-radius: 6px; border: 1px solid #ccc;">
+                
+                <label style="font-size: 14px; color: #029dbb; font-weight: bold;">Sampai:</label>
+                <input type="date"
+                       name="sampai_tanggal"
+                       value="{{ request('sampai_tanggal') }}"
+                       onchange="submitForm()"
+                       style="padding: 8px; border-radius: 6px; border: 1px solid #ccc;">
+            </div>
+
+            <!-- {{-- Tombol Search --}}
+            <button type="submit" style="padding: 10px 20px; background-color: #029dbb; color: white; border: none; border-radius: 8px;">
+                Cari
+            </button> -->
+
+            {{-- Tombol Reset Filter --}}
+            @if(request('search') || request('jenis_file') || request('dari_tanggal') || request('sampai_tanggal'))
+                <a href="{{ route('folders.show', $folder->id) }}"
+                   style="padding: 10px 20px; background-color: #6c757d; color: white; text-decoration: none; border-radius: 8px; display: inline-block;">
+                    Reset
+                </a>
+            @endif
         </form>
     </div>
+
+    {{-- Tampilkan info filter yang aktif --}}
+    @if(request('search') || request('jenis_file') || request('dari_tanggal') || request('sampai_tanggal'))
+        <div style="background: #e3f2fd; padding: 10px; border-radius: 8px; margin-bottom: 20px; font-size: 14px;">
+            <strong>Filter aktif:</strong>
+            @if(request('search'))
+                <span style="background: #2196F3; color: white; padding: 2px 8px; border-radius: 4px; margin: 0 5px;">
+                    Pencarian: "{{ request('search') }}"
+                </span>
+            @endif
+            @if(request('jenis_file'))
+                <span style="background: #4CAF50; color: white; padding: 2px 8px; border-radius: 4px; margin: 0 5px;">
+                    Jenis: {{ request('jenis_file') }}
+                </span>
+            @endif
+            @if(request('dari_tanggal') || request('sampai_tanggal'))
+                <span style="background: #FF9800; color: white; padding: 2px 8px; border-radius: 4px; margin: 0 5px;">
+                    Periode:
+                    @if(request('dari_tanggal'))
+                        {{ \Carbon\Carbon::parse(request('dari_tanggal'))->format('d M Y') }}
+                    @else
+                        Awal
+                    @endif
+                    s/d
+                    @if(request('sampai_tanggal'))
+                        {{ \Carbon\Carbon::parse(request('sampai_tanggal'))->format('d M Y') }}
+                    @else
+                        Sekarang
+                    @endif
+                </span>
+            @endif
+            <span style="color: #666;">({{ $folder->documents->count() }} hasil ditemukan)</span>
+        </div>
+    @endif
 
     <div style="background: white; border-radius: 15px; padding: 20px; overflow-x: auto;">
         <table style="width: 100%; border-collapse: collapse; font-size: 15px; min-width: 1100px;">
@@ -111,6 +161,8 @@
                                    text-align: {{ strlen($document->description ?? '') <= 50 ? 'center' : 'justify' }};">
                             @if($document->description)
                                 {{ $document->description }}
+                            @else
+                                <span style="color: #999; font-style: italic;">-</span>
                             @endif
                         </td>
 
@@ -157,7 +209,13 @@
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="6" style="text-align: center; padding: 30px; color: #aaa;">Belum ada file di folder ini.</td>
+                        <td colspan="6" style="text-align: center; padding: 30px; color: #aaa;">
+                            @if(request('search') || request('jenis_file') || request('dari_tanggal') || request('sampai_tanggal'))
+                                Tidak ada file yang sesuai dengan filter yang dipilih.
+                            @else
+                                Belum ada file di folder ini.
+                            @endif
+                        </td>
                     </tr>
                 @endforelse
             </tbody>
@@ -299,6 +357,28 @@
         }
     }
 
+    /* Style untuk input date */
+    input[type="date"] {
+        appearance: none;
+        -webkit-appearance: none;
+        color: #333;
+        font-size: 14px;
+        background: white;
+        cursor: pointer;
+    }
+
+    input[type="date"]::-webkit-calendar-picker-indicator {
+        color: #029dbb;
+        opacity: 1;
+        cursor: pointer;
+    }
+
+    input[type="date"]:focus {
+        outline: none;
+        border-color: #029dbb;
+        box-shadow: 0 0 5px rgba(2, 157, 187, 0.3);
+    }
+
     @media (max-width: 768px) {
         .modal-content {
             min-width: 300px;
@@ -313,9 +393,7 @@
             padding: 12px 20px;
             font-size: 16px;
         }
-    }
-
-    @media (max-width: 768px) {
+        
         div[style*="padding: 40px;"] { padding: 20px !important; }
         table { min-width: 100%; }
         th, td { font-size: 13px !important; padding: 8px !important; }
@@ -327,16 +405,57 @@
             text-align: left !important;
             hyphens: none !important;
         }
+        
+        /* Mobile responsive untuk date inputs */
+        div[style*="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;"] {
+            flex-direction: column !important;
+            align-items: flex-start !important;
+            gap: 5px !important;
+        }
+        
+        input[type="date"] {
+            width: 100% !important;
+            margin-bottom: 5px;
+        }
     }
 </style>
 
 <script>
+// Fungsi untuk submit form ketika dropdown berubah
+function submitForm() {
+    document.getElementById('filterForm').submit();
+}
+
 document.addEventListener('DOMContentLoaded', function() {
     const modal = document.getElementById('deleteModal');
     const cancelBtn = document.getElementById('cancelBtn');
     const confirmBtn = document.getElementById('confirmBtn');
     const filenameDisplay = document.querySelector('.filename-display');
     let currentForm = null;
+
+    // Validasi date range
+    const dariTanggal = document.querySelector('input[name="dari_tanggal"]');
+    const sampaiTanggal = document.querySelector('input[name="sampai_tanggal"]');
+
+    if (dariTanggal && sampaiTanggal) {
+        dariTanggal.addEventListener('change', function() {
+            if (sampaiTanggal.value && this.value > sampaiTanggal.value) {
+                alert('Tanggal "Dari" tidak boleh lebih besar dari tanggal "Sampai"');
+                this.value = '';
+                return;
+            }
+            submitForm();
+        });
+
+        sampaiTanggal.addEventListener('change', function() {
+            if (dariTanggal.value && this.value < dariTanggal.value) {
+                alert('Tanggal "Sampai" tidak boleh lebih kecil dari tanggal "Dari"');
+                this.value = '';
+                return;
+            }
+            submitForm();
+        });
+    }
 
     document.querySelectorAll('.delete-btn').forEach(function(btn) {
         btn.addEventListener('click', function() {
