@@ -122,7 +122,7 @@
 
             @php
                 $ext = strtolower(pathinfo($document->file_path, PATHINFO_EXTENSION));
-                $url = asset('storage/' . $document->file_path);
+                $url = asset(ltrim($document->file_path, '/')); // TANPA "storage/"
             @endphp
 
             @if (in_array($ext, ['pdf']))
@@ -141,7 +141,7 @@
             @endif
 
             <div class="action-btns">
-                <a href="{{ $url }}" download>Unduh</a>
+                <a href="{{ route('documents.download', $document->id) }}">Unduh</a>
                 <a href="{{ $url }}" target="_blank" rel="noopener">Buka di tab lain</a>
             </div>
         </div>

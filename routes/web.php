@@ -40,21 +40,21 @@ Route::middleware('auth')->group(function () {
     Route::prefix('documents')->name('documents.')->group(function () {
         Route::get('/create/{folder_id}', [DocumentController::class, 'create'])->name('create');
         Route::post('/', [DocumentController::class, 'store'])->name('store');
+
+        Route::get('{id}/preview', [DocumentController::class, 'preview'])->name('preview');
+        Route::get('{id}/download', [DocumentController::class, 'download'])->name('download');
+
         Route::get('{id}/edit', [DocumentController::class, 'edit'])->name('edit');
         Route::put('{id}', [DocumentController::class, 'update'])->name('update');
         Route::delete('{id}', [DocumentController::class, 'destroy'])->name('destroy');
-        Route::get('{id}/preview', [DocumentController::class, 'preview'])->name('preview');
     });
 
     // Profil
     Route::get('/profile', [ProfileController::class, 'show'])->name('profile');
-
     Route::get('/profile/edit-name', [ProfileController::class, 'editName'])->name('profile.edit.name');
     Route::post('/profile/update-name', [ProfileController::class, 'updateName'])->name('profile.update.name');
-
     Route::get('/profile/edit-password', [ProfileController::class, 'editPassword'])->name('profile.edit.password');
     Route::post('/profile/update-password', [ProfileController::class, 'updatePassword'])->name('profile.update.password');
-
     Route::get('/profile/edit-photo', [ProfileController::class, 'editPhoto'])->name('profile.edit.photo');
     Route::post('/profile/update-photo', [ProfileController::class, 'updatePhoto'])->name('profile.update.photo');
 });
