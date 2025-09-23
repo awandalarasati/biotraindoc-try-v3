@@ -1,5 +1,3 @@
-<?php
-?>
 @extends('layouts.app')
 
 @section('content')
@@ -11,57 +9,121 @@
             Tambah File ke Folder: {{ $folder->title }}
         </h3>
 
-        <form action="{{ route('documents.store') }}" method="POST" enctype="multipart/form-data" style="margin-top: 30px;">
+        {{-- Flash error dari controller (mis. "Upload gagal: ...") --}}
+        @if (session('error'))
+        <div style="background:#fee2e2;color:#b91c1c;padding:10px;border-radius:6px;margin-top:16px;">
+            {{ session('error') }}
+        </div>
+        @endif
+
+        {{-- Error validasi --}}
+        @if ($errors->any())
+        <div style="background:#fff3cd;color:#8a6d3b;padding:10px;border-radius:6px;margin-top:16px;">
+            <ul style="margin:0 0 0 16px;">
+                @foreach ($errors->all() as $error)
+                <li>{{ $error }}</li>
+                @endforeach
+            </ul>
+        </div>
+        @endif
+
+        <form action="{{ route('documents.store') }}" method="POST" enctype="multipart/form-data" style="margin-top: 24px;">
             @csrf
             <input type="hidden" name="folder_id" value="{{ $folder->id }}">
+            {{-- sinkronisasi nilai custom jika user ketik lalu submit --}}
+            <input type="hidden" id="custom_jenis_hidden" name="custom_jenis_hidden" value="{{ old('custom_jenis_hidden') }}">
 
             {{-- Judul File --}}
-            <div style="margin-bottom: 20px;">
+            <div style="margin-bottom: 16px;">
                 <label for="judul" style="font-weight: bold; color: #029dbb;">Judul File</label>
-                <input type="text" id="judul" name="title" required
+                <input
+                    type="text"
+                    id="judul"
+                    name="title"
+                    value="{{ old('title') }}"
+                    required
                     style="width: 100%; padding: 12px; border-radius: 8px; border: 1px solid #ccc;">
+                @error('title')
+                    <div style="color:#b91c1c;font-size:12px;margin-top:6px;">{{ $message }}</div>
+                @enderror
             </div>
 
-            {{-- Deskripsi File (tidak wajib diisi) --}}
-            <div style="margin-bottom: 20px;">
+            {{-- Deskripsi File (opsional) --}}
+            <div style="margin-bottom: 16px;">
                 <label for="deskripsi" style="font-weight: bold; color: #029dbb;">Deskripsi File</label>
-                <textarea id="deskripsi" name="description" rows="4"
-                    style="width: 100%; padding: 12px; border-radius: 8px; border: 1px solid #ccc;"></textarea>
+                <textarea
+                    id="deskripsi"
+                    name="description"
+                    rows="4"
+                    style="width: 100%; padding: 12px; border-radius: 8px; border: 1px solid #ccc;">{{ old('description') }}</textarea>
+                @error('description')
+                    <div style="color:#b91c1c;font-size:12px;margin-top:6px;">{{ $message }}</div>
+                @enderror
             </div>
 
-            {{-- Waktu Pelaksanaan --}}
-            <div style="margin-bottom: 20px;">
+            {{-- Waktu Pelaksanaan (opsional) --}}
+            <div style="margin-bottom: 16px;">
                 <label for="waktu_pelaksanaan" style="font-weight: bold; color: #029dbb;">Waktu Pelaksanaan</label>
-                <input type="text" id="waktu_pelaksanaan" name="waktu_pelaksanaan" placeholder="Contoh: 23 Juni 2025"
+                <input
+                    type="text"
+                    id="waktu_pelaksanaan"
+                    name="waktu_pelaksanaan"
+                    value="{{ old('waktu_pelaksanaan') }}"
+                    placeholder="Contoh: 23 Juni 2025"
                     style="width: 100%; padding: 12px; border-radius: 8px; border: 1px solid #ccc;">
                 <p style="color: #666; font-size: 12px; margin-top: 5px;">
                     *Masukkan waktu pelaksanaan secara manual (opsional)
                 </p>
+                @error('waktu_pelaksanaan')
+                    <div style="color:#b91c1c;font-size:12px;margin-top:6px;">{{ $message }}</div>
+                @enderror
             </div>
 
             {{-- Dokumen --}}
-            <div style="margin-bottom: 20px;">
+            <div style="margin-bottom: 16px;">
                 <label for="document" style="font-weight: bold; color: #029dbb;">Dokumen</label>
-                <input type="file" id="document" name="document" accept=".png,.jpg,.jpeg,.pdf,.mp4,.docx,.xlsx,.zip" required style="margin-top: 10px;">
-                <p style="color: red; font-size: 13px; margin-top: 10px;">
-                    *Format yang didukung: .png, .jpg, .jpeg, .pdf, .mp4, .docx, .xlsx, .zip
+                <input
+                    type="file"
+                    id="document"
+                    name="document"
+                    accept=".png,.jpg,.jpeg,.gif,.webp,.pdf,.mp4,.webm,.doc,.docx,.xls,.xlsx,.csv,.zip,.rar"
+                    required
+                    style="margin-top: 10px;">
+                <p style="color: #6b7280; font-size: 12px; margin-top: 6px;">
+                    Format didukung: gambar (png/jpg/jpeg/gif/webp), PDF, video (mp4/webm), Office (docx/xlsx/csv), arsip (zip/rar).
+                    Maks 200&nbsp;MB.
                 </p>
+                @error('document')
+                    <div style="color:#b91c1c;font-size:12px;margin-top:6px;">{{ $message }}</div>
+                @enderror
             </div>
 
             {{-- Jenis File --}}
-            <div style="margin-bottom: 20px;">
+            <div style="margin-bottom: 16px;">
                 <label for="jenis_file" style="font-weight: bold; color: #029dbb;">Jenis File</label>
-                <select id="jenis_file" name="jenis_file" onchange="toggleCustomJenis()"
+                <select
+                    id="jenis_file"
+                    name="jenis_file"
+                    onchange="toggleCustomJenis()"
                     style="width: 100%; padding: 12px; border-radius: 8px; border: 1px solid #ccc;">
-                    <option value="SPRL">SPRL</option>
-                    <option value="Dokumentasi">Dokumentasi</option>
-                    <option value="Daftar Hadir">Daftar Hadir</option>
-                    <option value="custom">➕ Tambah Jenis Lainnya</option>
+                    @php $oldJenis = old('jenis_file', 'SPRL'); @endphp
+                    <option value="SPRL" {{ $oldJenis==='SPRL' ? 'selected' : '' }}>SPRL</option>
+                    <option value="Dokumentasi" {{ $oldJenis==='Dokumentasi' ? 'selected' : '' }}>Dokumentasi</option>
+                    <option value="Daftar Hadir" {{ $oldJenis==='Daftar Hadir' ? 'selected' : '' }}>Daftar Hadir</option>
+                    <option value="custom" {{ $oldJenis==='custom' ? 'selected' : '' }}>➕ Tambah Jenis Lainnya</option>
                 </select>
 
-                {{-- Input untuk custom jenis file --}}
-                <input type="text" id="custom_jenis" name="custom_jenis" placeholder="Masukkan jenis file baru"
+                {{-- Input untuk custom jenis file (muncul jika pilih "custom") --}}
+                <input
+                    type="text"
+                    id="custom_jenis"
+                    name="custom_jenis"
+                    value="{{ old('custom_jenis') }}"
+                    placeholder="Masukkan jenis file baru"
                     style="width: 100%; padding: 12px; border-radius: 8px; border: 1px solid #ccc; margin-top: 10px; display: none;">
+                @error('jenis_file')
+                    <div style="color:#b91c1c;font-size:12px;margin-top:6px;">{{ $message }}</div>
+                @enderror
             </div>
 
             {{-- Tombol Simpan --}}
@@ -75,15 +137,27 @@
 
 <script>
 function toggleCustomJenis() {
-    let dropdown = document.getElementById('jenis_file');
-    let customInput = document.getElementById('custom_jenis');
+    const dropdown   = document.getElementById('jenis_file');
+    const customInput = document.getElementById('custom_jenis');
     if (dropdown.value === 'custom') {
         customInput.style.display = 'block';
-        customInput.name = 'jenis_file';
+        customInput.focus();
     } else {
         customInput.style.display = 'none';
-        customInput.name = 'custom_jenis_hidden';
     }
 }
+document.addEventListener('DOMContentLoaded', function () {
+    const dd = document.getElementById('jenis_file');
+    const ci = document.getElementById('custom_jenis');
+    const hi = document.getElementById('custom_jenis_hidden');
+
+    // set tampilan awal sesuai old value
+    toggleCustomJenis();
+
+    // sinkron terus hidden dgn apa yg diketik user
+    const syncHidden = () => { hi.value = ci.value; };
+    ci.addEventListener('input', syncHidden);
+    syncHidden();
+});
 </script>
 @endsection
