@@ -16,7 +16,6 @@ Route::middleware('guest')->group(function () {
     Route::get('/register', [AuthController::class, 'showRegisterForm'])->name('register');
     Route::post('/register', [AuthController::class, 'register']);
 
-    // Forgot & Reset Password
     Route::get('forgot-password', [ForgotPasswordController::class, 'showLinkRequestForm'])->name('password.request');
     Route::post('forgot-password', [ForgotPasswordController::class, 'sendResetLinkEmail'])->name('password.email');
     Route::get('reset-password/{token}', [ResetPasswordController::class, 'showResetForm'])->name('password.reset');
@@ -42,8 +41,8 @@ Route::middleware('auth')->group(function () {
         Route::post('/', [DocumentController::class, 'store'])->name('store');
 
         Route::get('{id}/preview',  [DocumentController::class, 'preview'])->name('preview');
-        Route::get('{id}/raw',      [DocumentController::class, 'raw'])->name('raw');           // <— untuk embed
-        Route::get('{id}/download', [DocumentController::class, 'download'])->name('download'); // <— untuk unduh
+        Route::get('{id}/raw',      [DocumentController::class, 'raw'])->name('raw');
+        Route::get('{id}/download', [DocumentController::class, 'download'])->name('download');
 
         Route::get('{id}/edit',   [DocumentController::class, 'edit'])->name('edit');
         Route::put('{id}',        [DocumentController::class, 'update'])->name('update');

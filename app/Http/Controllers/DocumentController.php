@@ -13,6 +13,7 @@ use Throwable;
 
 class DocumentController extends Controller
 {
+    // ===== Helpers =====
     private function greet(): string
     {
         $hour = Carbon::now('Asia/Jakarta')->format('H');
@@ -28,15 +29,16 @@ class DocumentController extends Controller
     {
         $rel = ltrim($document->file_path, '/');
 
-        $pub = public_path($rel);                         // public/uploads/xxx
+        $pub = public_path($rel);
         if (is_file($pub)) return $pub;
 
-        $sto = storage_path('app/public/'.$rel);          // storage/app/public/uploads/xxx
+        $sto = storage_path('app/public/'.$rel);
         if (is_file($sto)) return $sto;
 
         return null;
     }
 
+    // ===== UI =====
     public function create($folder_id)
     {
         $folder   = Folder::findOrFail($folder_id);
@@ -57,44 +59,45 @@ class DocumentController extends Controller
             'title'              => 'required|string|max:255',
             'description'        => 'nullable|string',
             'waktu_pelaksanaan'  => 'nullable|string|max:255',
-            'document'           => 'required|file|max:204800', // 200MB
+            'document'           => 'required|file|max:204800', // 200MB (satuan KB)
             'jenis_file'         => 'required|string|max:255',
         ]);
 
         $file = $request->file('document');
+
         $uploadDir = public_path('uploads');
         try {
-            if (!is_dir($uploadDir)) {
-                mkdir($uploadDir, 0777, true);
-            } else {
-                @chmod($uploadDir, 0777);
-            }
+            if (!is_dir($uploadDir)) { mkdir($uploadDir, 0777, true); } else { @chmod($uploadDir, 0777); }
         } catch (Throwable $e) {
-            return back()->with('error', 'Gagal membuat folder upload: '.$e->getMessage());
+            return back()->with('error', 'Gagal membuat folder upload: '.$e->getMessage())->withInput();
         }
 
         try {
-            $ext      = strtolower($file->getClientOriginalExtension());
+            $ext          = strtolower($file->getClientOriginalExtension());
+            $size         = $file->getSize();
+            $originalName = $file->getClientOriginalName();
+
             $safeName = Str::uuid()->toString().'.'.$ext;
             $file->move($uploadDir, $safeName);
 
-            $document = Document::create([
+            Document::create([
                 'folder_id'         => $request->folder_id,
                 'title'             => $request->title,
                 'description'       => $request->description,
                 'waktu_pelaksanaan' => $request->waktu_pelaksanaan,
                 'file_path'         => 'uploads/'.$safeName,
                 'file_type'         => $ext,
-                'file_size'         => $file->getSize(),
-                'original_name'     => $file->getClientOriginalName(),
+                'file_size'         => $size,
+                'original_name'     => $originalName,
                 'jenis_file'        => $request->jenis_file,
             ]);
 
             Folder::find($request->folder_id)?->touch();
+
             return redirect()->route('folders.show', $request->folder_id)
                              ->with('success', 'File berhasil diunggah.');
         } catch (Throwable $e) {
-            return back()->with('error', 'Upload gagal: '.$e->getMessage());
+            return back()->with('error', 'Upload gagal: '.$e->getMessage())->withInput();
         }
     }
 
@@ -133,20 +136,24 @@ class DocumentController extends Controller
 
         if ($request->hasFile('file')) {
             $uploadDir = public_path('uploads');
-            if (!is_dir($uploadDir)) mkdir($uploadDir, 0777, true); else @chmod($uploadDir, 0777);
+            if (!is_dir($uploadDir)) { mkdir($uploadDir, 0777, true); } else { @chmod($uploadDir, 0777); }
+
             if ($document->file_path && File::exists(public_path($document->file_path))) {
                 @File::delete(public_path($document->file_path));
             }
 
-            $file     = $request->file('file');
-            $ext      = strtolower($file->getClientOriginalExtension());
+            $file         = $request->file('file');
+            $ext          = strtolower($file->getClientOriginalExtension());
+            $size         = $file->getSize();
+            $originalName = $file->getClientOriginalName();
+
             $safeName = Str::uuid()->toString().'.'.$ext;
             $file->move($uploadDir, $safeName);
 
             $data['file_path']     = 'uploads/'.$safeName;
             $data['file_type']     = $ext;
-            $data['file_size']     = $file->getSize();
-            $data['original_name'] = $file->getClientOriginalName();
+            $data['file_size']     = $size;
+            $data['original_name'] = $originalName;
         }
 
         $document->update($data);
@@ -171,10 +178,12 @@ class DocumentController extends Controller
                          ->with('success', 'File berhasil dihapus.');
     }
 
-    // ======= PREVIEW PAGE =======
+    // ===== PREVIEW PAGE =====
     public function preview($id)
     {
         $document = Document::findOrFail($id);
+
+        // file office/arsip: langsung download
         $ext = strtolower(pathinfo($document->file_path, PATHINFO_EXTENSION));
         if (in_array($ext, ['doc','docx','xls','xlsx','csv','zip','rar'])) {
             return $this->download($id);
@@ -184,7 +193,7 @@ class DocumentController extends Controller
         return view('dashboard.preview', compact('document', 'greeting'));
     }
 
-    // ======= RAW FILE (untuk <img>, <iframe>, <video>) =======
+    // ===== RAW (untuk <img>, <iframe>, <video>) =====
     public function raw($id)
     {
         $document = Document::findOrFail($id);
@@ -192,27 +201,27 @@ class DocumentController extends Controller
         abort_unless($path && is_file($path), 404, 'File tidak ditemukan.');
 
         $mime = match (strtolower(pathinfo($path, PATHINFO_EXTENSION))) {
-            'pdf'   => 'application/pdf',
-            'png'   => 'image/png',
+            'pdf'        => 'application/pdf',
+            'png'        => 'image/png',
             'jpg','jpeg' => 'image/jpeg',
-            'gif'   => 'image/gif',
-            'webp'  => 'image/webp',
-            'mp4'   => 'video/mp4',
-            'webm'  => 'video/webm',
-            default => mime_content_type($path) ?: 'application/octet-stream',
+            'gif'        => 'image/gif',
+            'webp'       => 'image/webp',
+            'mp4'        => 'video/mp4',
+            'webm'       => 'video/webm',
+            default      => mime_content_type($path) ?: 'application/octet-stream',
         };
 
         return Response::file($path, ['Content-Type' => $mime]);
     }
 
-    // ======= DOWNLOAD (attachment) =======
+    // ===== DOWNLOAD (attachment) =====
     public function download($id)
     {
         $document = Document::findOrFail($id);
         $path = $this->resolveExistingPath($document);
         abort_unless($path && is_file($path), 404, 'File tidak ditemukan.');
 
-        $ext = pathinfo($path, PATHINFO_EXTENSION);
+        $ext  = pathinfo($path, PATHINFO_EXTENSION);
         $name = str($document->title)->slug('-').'.'.$ext;
 
         return response()->download($path, $name);

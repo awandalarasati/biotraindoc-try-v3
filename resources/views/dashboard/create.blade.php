@@ -30,7 +30,6 @@
         <form action="{{ route('documents.store') }}" method="POST" enctype="multipart/form-data" style="margin-top: 24px;">
             @csrf
             <input type="hidden" name="folder_id" value="{{ $folder->id }}">
-            {{-- sinkronisasi nilai custom jika user ketik lalu submit --}}
             <input type="hidden" id="custom_jenis_hidden" name="custom_jenis_hidden" value="{{ old('custom_jenis_hidden') }}">
 
             {{-- Judul File --}}
@@ -56,9 +55,6 @@
                     name="description"
                     rows="4"
                     style="width: 100%; padding: 12px; border-radius: 8px; border: 1px solid #ccc;">{{ old('description') }}</textarea>
-                @error('description')
-                    <div style="color:#b91c1c;font-size:12px;margin-top:6px;">{{ $message }}</div>
-                @enderror
             </div>
 
             {{-- Waktu Pelaksanaan (opsional) --}}
@@ -71,9 +67,7 @@
                     value="{{ old('waktu_pelaksanaan') }}"
                     placeholder="Contoh: 23 Juni 2025"
                     style="width: 100%; padding: 12px; border-radius: 8px; border: 1px solid #ccc;">
-                <p style="color: #666; font-size: 12px; margin-top: 5px;">
-                    *Masukkan waktu pelaksanaan secara manual (opsional)
-                </p>
+                <p style="color: #666; font-size: 12px; margin-top: 5px;">*Opsional</p>
                 @error('waktu_pelaksanaan')
                     <div style="color:#b91c1c;font-size:12px;margin-top:6px;">{{ $message }}</div>
                 @enderror
@@ -89,9 +83,9 @@
                     accept=".png,.jpg,.jpeg,.gif,.webp,.pdf,.mp4,.webm,.doc,.docx,.xls,.xlsx,.csv,.zip,.rar"
                     required
                     style="margin-top: 10px;">
-                <p style="color: #6b7280; font-size: 12px; margin-top: 6px;">
-                    Format didukung: gambar (png/jpg/jpeg/gif/webp), PDF, video (mp4/webm), Office (docx/xlsx/csv), arsip (zip/rar).
-                    Maks 200&nbsp;MB.
+                <p style="color:#6b7280;font-size:12px;margin-top:6px;max-width:640px;line-height:1.4;">
+                    Format: <strong>Gambar</strong> (PNG/JPG/JPEG/GIF/WEBP), <strong>PDF</strong>, <strong>Video</strong> (MP4/WEBM),
+                    <strong>Office</strong> (DOC/DOCX/XLS/XLSX/CSV), <strong>Arsip</strong> (ZIP/RAR). Maks 200&nbsp;MB.
                 </p>
                 @error('document')
                     <div style="color:#b91c1c;font-size:12px;margin-top:6px;">{{ $message }}</div>
@@ -113,7 +107,6 @@
                     <option value="custom" {{ $oldJenis==='custom' ? 'selected' : '' }}>➕ Tambah Jenis Lainnya</option>
                 </select>
 
-                {{-- Input untuk custom jenis file (muncul jika pilih "custom") --}}
                 <input
                     type="text"
                     id="custom_jenis"
@@ -121,9 +114,6 @@
                     value="{{ old('custom_jenis') }}"
                     placeholder="Masukkan jenis file baru"
                     style="width: 100%; padding: 12px; border-radius: 8px; border: 1px solid #ccc; margin-top: 10px; display: none;">
-                @error('jenis_file')
-                    <div style="color:#b91c1c;font-size:12px;margin-top:6px;">{{ $message }}</div>
-                @enderror
             </div>
 
             {{-- Tombol Simpan --}}
@@ -137,24 +127,14 @@
 
 <script>
 function toggleCustomJenis() {
-    const dropdown   = document.getElementById('jenis_file');
+    const dropdown = document.getElementById('jenis_file');
     const customInput = document.getElementById('custom_jenis');
-    if (dropdown.value === 'custom') {
-        customInput.style.display = 'block';
-        customInput.focus();
-    } else {
-        customInput.style.display = 'none';
-    }
+    customInput.style.display = (dropdown.value === 'custom') ? 'block' : 'none';
 }
 document.addEventListener('DOMContentLoaded', function () {
-    const dd = document.getElementById('jenis_file');
     const ci = document.getElementById('custom_jenis');
     const hi = document.getElementById('custom_jenis_hidden');
-
-    // set tampilan awal sesuai old value
     toggleCustomJenis();
-
-    // sinkron terus hidden dgn apa yg diketik user
     const syncHidden = () => { hi.value = ci.value; };
     ci.addEventListener('input', syncHidden);
     syncHidden();
