@@ -41,12 +41,13 @@ Route::middleware('auth')->group(function () {
         Route::get('/create/{folder_id}', [DocumentController::class, 'create'])->name('create');
         Route::post('/', [DocumentController::class, 'store'])->name('store');
 
-        Route::get('{id}/preview', [DocumentController::class, 'preview'])->name('preview');
-        Route::get('{id}/download', [DocumentController::class, 'download'])->name('download');
+        Route::get('{id}/preview',  [DocumentController::class, 'preview'])->name('preview');
+        Route::get('{id}/raw',      [DocumentController::class, 'raw'])->name('raw');           // <— untuk embed
+        Route::get('{id}/download', [DocumentController::class, 'download'])->name('download'); // <— untuk unduh
 
-        Route::get('{id}/edit', [DocumentController::class, 'edit'])->name('edit');
-        Route::put('{id}', [DocumentController::class, 'update'])->name('update');
-        Route::delete('{id}', [DocumentController::class, 'destroy'])->name('destroy');
+        Route::get('{id}/edit',   [DocumentController::class, 'edit'])->name('edit');
+        Route::put('{id}',        [DocumentController::class, 'update'])->name('update');
+        Route::delete('{id}',     [DocumentController::class, 'destroy'])->name('destroy');
     });
 
     // Profil

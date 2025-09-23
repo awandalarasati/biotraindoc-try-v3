@@ -122,8 +122,9 @@
 
             @php
                 $ext = strtolower(pathinfo($document->file_path, PATHINFO_EXTENSION));
-                $url = asset(ltrim($document->file_path, '/')); // TANPA 'storage/'
+                $url = route('documents.raw', $document->id);
             @endphp
+
 
             @if (in_array($ext, ['pdf']))
                 <iframe src="{{ $url }}"></iframe>
