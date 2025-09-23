@@ -66,16 +66,14 @@ class DocumentController extends Controller
             'title'             => $request->title,
             'description'       => $request->description,
             'waktu_pelaksanaan' => $request->waktu_pelaksanaan,
-            'file_path'         => 'uploads/'.$safeName,                 // RELATIF dari public
+            'file_path'         => 'uploads/'.$safeName, // RELATIF dari public
             'file_type'         => $ext,
             'file_size'         => $file->getSize(),
             'original_name'     => $file->getClientOriginalName(),
             'jenis_file'        => $request->jenis_file,
         ]);
 
-        // sentuh folder biar updated_at naik
-        $folder = Folder::find($request->folder_id);
-        $folder?->touch();
+        Folder::find($request->folder_id)?->touch();
 
         return redirect()->route('folders.show', $request->folder_id)
                          ->with('success', 'File berhasil diunggah.');
@@ -175,13 +173,10 @@ class DocumentController extends Controller
     {
         $document = Document::findOrFail($id);
 
-        // Office/arsip tidak bisa di-embed → langsung download agar tetap "bisa dilihat"
+        // file office/arsip: langsung unduh saja
         $ext = strtolower(pathinfo($document->file_path, PATHINFO_EXTENSION));
         if (in_array($ext, ['doc', 'docx', 'xls', 'xlsx', 'csv', 'zip', 'rar'])) {
-            $path = public_path($document->file_path);
-            abort_unless(file_exists($path), 404, 'File tidak ditemukan.');
-            $downloadName = str($document->title)->slug('-').'.'.$ext;
-            return response()->download($path, $downloadName);
+            return $this->download($id);
         }
 
         $hour = Carbon::now('Asia/Jakarta')->format('H');
@@ -198,11 +193,16 @@ class DocumentController extends Controller
     public function download($id)
     {
         $document = Document::findOrFail($id);
-        $path = public_path($document->file_path);
-        abort_unless(file_exists($path), 404, 'File tidak ditemukan.');
-        $ext = pathinfo($path, PATHINFO_EXTENSION);
+
+        // prioritas cek di public/uploads
+        $publicPath  = public_path($document->file_path);
+        if (!file_exists($publicPath)) {
+            abort(404, 'File tidak ditemukan.');
+        }
+
+        $ext = pathinfo($publicPath, PATHINFO_EXTENSION);
         $downloadName = str($document->title)->slug('-').'.'.$ext;
 
-        return response()->download($path, $downloadName);
+        return response()->download($publicPath, $downloadName);
     }
 }

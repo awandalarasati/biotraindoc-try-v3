@@ -122,7 +122,7 @@
 
             @php
                 $ext = strtolower(pathinfo($document->file_path, PATHINFO_EXTENSION));
-                $url = asset(ltrim($document->file_path, '/')); // TANPA "storage/"
+                $url = asset(ltrim($document->file_path, '/')); // TANPA 'storage/'
             @endphp
 
             @if (in_array($ext, ['pdf']))
