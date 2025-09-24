@@ -37,7 +37,6 @@ Route::middleware('auth')->group(function () {
     });
 
     Route::prefix('documents')->name('documents.')->group(function () {
-        // PARAM OPSIONAL: bisa /documents/create  ATAU  /documents/create/{id}
         Route::get('/create/{id?}', [DocumentController::class, 'create'])->name('create');
 
         Route::post('/', [DocumentController::class, 'store'])->name('store');
@@ -59,4 +58,6 @@ Route::middleware('auth')->group(function () {
     Route::post('/profile/update-password', [ProfileController::class, 'updatePassword'])->name('profile.update.password');
     Route::get('/profile/edit-photo', [ProfileController::class, 'editPhoto'])->name('profile.edit.photo');
     Route::post('/profile/update-photo', [ProfileController::class, 'updatePhoto'])->name('profile.update.photo');
+
+    Route::get('/profile/photo/{id}', [ProfileController::class, 'photo'])->name('profile.photo');
 });

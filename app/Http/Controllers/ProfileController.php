@@ -6,7 +6,6 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Str;
 use App\Models\User;
 use Carbon\Carbon;
 
@@ -98,25 +97,35 @@ class ProfileController extends Controller
 
         $user = Auth::user();
 
-        $disk = Storage::disk('public');
-
-        if (!$disk->exists('profile-photos')) {
-            $disk->makeDirectory('profile-photos');
+        if ($user->photo && Storage::disk('public')->exists($user->photo)) {
+            Storage::disk('public')->delete($user->photo);
         }
 
-        if ($user->photo && $disk->exists($user->photo)) {
-            $disk->delete($user->photo);
-        }
+        // Simpan foto baru di storage/app/public/profile-photos
+        $path = $request->file('profile_photo')->store('profile-photos', 'public');
 
-        $file = $request->file('profile_photo');
-        $ext  = strtolower($file->getClientOriginalExtension());
-        $name = Str::uuid()->toString().'.'.$ext;
-
-        $disk->putFileAs('profile-photos', $file, $name);
-
-        $user->photo = 'profile-photos/'.$name;
+        $user->photo = $path;
         $user->save();
 
         return redirect()->route('profile')->with('success', 'Foto profil berhasil diperbarui!');
+    }
+
+    public function photo($id)
+    {
+        $user = User::findOrFail($id);
+
+        if (!$user->photo) {
+            abort(404);
+        }
+
+        $path = storage_path('app/public/' . $user->photo);
+        abort_unless(is_file($path), 404);
+
+        $mime = mime_content_type($path) ?: 'image/jpeg';
+
+        return response()->file($path, [
+            'Content-Type'  => $mime,
+            'Cache-Control' => 'private, max-age=0, no-store',
+        ]);
     }
 }
