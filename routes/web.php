@@ -37,7 +37,9 @@ Route::middleware('auth')->group(function () {
     });
 
     Route::prefix('documents')->name('documents.')->group(function () {
-        Route::get('/create/{folder_id}', [DocumentController::class, 'create'])->name('create');
+        // PARAM OPSIONAL: bisa /documents/create  ATAU  /documents/create/{id}
+        Route::get('/create/{id?}', [DocumentController::class, 'create'])->name('create');
+
         Route::post('/', [DocumentController::class, 'store'])->name('store');
 
         Route::get('{id}/preview',  [DocumentController::class, 'preview'])->name('preview');

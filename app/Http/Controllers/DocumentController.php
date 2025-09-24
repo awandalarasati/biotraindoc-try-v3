@@ -13,7 +13,8 @@ use Throwable;
 
 class DocumentController extends Controller
 {
-    // ===== Helpers =====
+    /* =============== Helpers =============== */
+
     private function greet(): string
     {
         $hour = Carbon::now('Asia/Jakarta')->format('H');
@@ -38,10 +39,52 @@ class DocumentController extends Controller
         return null;
     }
 
-    // ===== UI =====
-    public function create($folder_id)
+    /* =============== UI =============== */
+
+    /**
+     * /documents/create/{id?}
+     * - ?folder_id=... : pakai folder itu
+     * - {id} folder    : pakai folder itu
+     * - {id} dokumen   : pakai folder milik dokumen
+     * - tanpa apa-apa  : pakai folder terbaru (updated_at/created_at)
+     */
+    public function create(Request $request, $id = null)
     {
-        $folder   = Folder::findOrFail($folder_id);
+        // 1) Prioritas: query string ?folder_id=XX jika ada
+        if ($request->filled('folder_id')) {
+            $folder = Folder::find($request->query('folder_id'));
+            if ($folder) {
+                $greeting = $this->greet();
+                return view('dashboard.create', compact('greeting', 'folder'));
+            }
+        }
+
+        // 2) Coba {id} sebagai folder
+        if ($id !== null) {
+            $folder = Folder::find($id);
+            if ($folder) {
+                $greeting = $this->greet();
+                return view('dashboard.create', compact('greeting', 'folder'));
+            }
+
+            // 3) Kalau bukan folder, coba {id} sebagai dokumen → ambil foldernya
+            $doc = Document::find($id);
+            if ($doc && $doc->folder) {
+                $greeting = $this->greet();
+                $folder = $doc->folder;
+                return view('dashboard.create', compact('greeting', 'folder'));
+            }
+        }
+
+        // 4) Fallback: ambil folder terbaru (tanpa filter user_id)
+        $folder = Folder::orderByDesc('updated_at')
+                        ->orderByDesc('created_at')
+                        ->first();
+
+        if (!$folder) {
+            return redirect()->route('dashboard')->with('error', 'Buat folder terlebih dahulu.');
+        }
+
         $greeting = $this->greet();
         return view('dashboard.create', compact('greeting', 'folder'));
     }
@@ -59,7 +102,7 @@ class DocumentController extends Controller
             'title'              => 'required|string|max:255',
             'description'        => 'nullable|string',
             'waktu_pelaksanaan'  => 'nullable|string|max:255',
-            'document'           => 'required|file|max:204800', // 200MB (satuan KB)
+            'document'           => 'required|file|max:204800', // 200 MB
             'jenis_file'         => 'required|string|max:255',
         ]);
 
@@ -138,9 +181,8 @@ class DocumentController extends Controller
             $uploadDir = public_path('uploads');
             if (!is_dir($uploadDir)) { mkdir($uploadDir, 0777, true); } else { @chmod($uploadDir, 0777); }
 
-            if ($document->file_path && File::exists(public_path($document->file_path))) {
-                @File::delete(public_path($document->file_path));
-            }
+            $old = $this->resolveExistingPath($document);
+            if ($old) @File::delete($old);
 
             $file         = $request->file('file');
             $ext          = strtolower($file->getClientOriginalExtension());
@@ -178,12 +220,12 @@ class DocumentController extends Controller
                          ->with('success', 'File berhasil dihapus.');
     }
 
-    // ===== PREVIEW PAGE =====
+    /* =============== Preview =============== */
+
     public function preview($id)
     {
         $document = Document::findOrFail($id);
 
-        // file office/arsip: langsung download
         $ext = strtolower(pathinfo($document->file_path, PATHINFO_EXTENSION));
         if (in_array($ext, ['doc','docx','xls','xlsx','csv','zip','rar'])) {
             return $this->download($id);
@@ -193,7 +235,8 @@ class DocumentController extends Controller
         return view('dashboard.preview', compact('document', 'greeting'));
     }
 
-    // ===== RAW (untuk <img>, <iframe>, <video>) =====
+    /* =============== RAW (embed) =============== */
+
     public function raw($id)
     {
         $document = Document::findOrFail($id);
@@ -214,16 +257,29 @@ class DocumentController extends Controller
         return Response::file($path, ['Content-Type' => $mime]);
     }
 
-    // ===== DOWNLOAD (attachment) =====
+    /* =============== Download (streaming) =============== */
+
     public function download($id)
     {
         $document = Document::findOrFail($id);
         $path = $this->resolveExistingPath($document);
         abort_unless($path && is_file($path), 404, 'File tidak ditemukan.');
 
-        $ext  = pathinfo($path, PATHINFO_EXTENSION);
-        $name = str($document->title)->slug('-').'.'.$ext;
+        $ext   = pathinfo($path, PATHINFO_EXTENSION);
+        $name  = str($document->title)->slug('-').'.'.$ext;
+        $mime  = mime_content_type($path) ?: 'application/octet-stream';
+        $size  = filesize($path) ?: null;
 
-        return response()->download($path, $name);
+        return response()->streamDownload(function() use ($path) {
+            $fp = fopen($path, 'rb');
+            while (!feof($fp)) {
+                echo fread($fp, 8192);
+                flush();
+            }
+            fclose($fp);
+        }, $name, array_filter([
+            'Content-Type'   => $mime,
+            'Content-Length' => $size,
+        ]));
     }
 }

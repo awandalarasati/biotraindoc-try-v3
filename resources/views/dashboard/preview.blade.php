@@ -2,43 +2,27 @@
 
 @section('content')
 <style>
-    :root{
-        --card-width: 1100px;
-        --card-pad: 30px;
-    }
+    :root{ --card-width:1100px; --card-pad:30px; }
     .page-wrap{ padding:40px; font-family:sans-serif; }
-    .preview-shell{
-        width: var(--card-width);
-        max-width: 100%;
-        margin: 0 auto;
-        position: relative;
-    }
+    .preview-shell{ width:var(--card-width); max-width:100%; margin:0 auto; position:relative; }
     .greeting-row{ padding:0 var(--card-pad); margin-bottom:10px; }
     .greeting-row h2{ color:#029dbb; margin:0; font-size:28px; line-height:1.2; }
 
-    .preview-container{
-        background:#fff; border-radius:15px; padding:var(--card-pad);
-        box-shadow:0 3px 12px rgba(0,0,0,.1); position:relative;
-    }
-    .close-btn{
-        position:absolute; top:16px; right:16px; font-size:26px; font-weight:700;
-        color:#e11d48; text-decoration:none; line-height:1;
-    }
+    .preview-container{ background:#fff; border-radius:15px; padding:var(--card-pad);
+        box-shadow:0 3px 12px rgba(0,0,0,.1); position:relative; }
+    .close-btn{ position:absolute; top:16px; right:16px; font-size:26px; font-weight:700;
+        color:#e11d48; text-decoration:none; line-height:1; }
 
     .file-head h3{ color:#0284c7; font-size:24px; margin:0 0 6px 0; }
     .file-head .info strong{ color:#006e9c; }
     .separator-line{ height:3px; background:#029dbb; border-radius:3px; margin:18px 0 22px 0; opacity:.6; }
 
     iframe,video,img{ width:100%; border:none; border-radius:10px; display:block; }
-    iframe{ height:600px; }
-    video{ height:500px; }
-    img{ max-height:600px; object-fit:contain; }
+    iframe{ height:600px; } video{ height:500px; } img{ max-height:600px; object-fit:contain; }
 
     .action-btns{ display:flex; justify-content:flex-end; gap:10px; margin-top:18px; }
-    .action-btns a{
-        text-decoration:none; padding:12px 20px; border-radius:8px; font-weight:700;
-        color:#fff; background:#0284c7; box-shadow:0 2px 4px rgba(0,0,0,.1);
-    }
+    .action-btns a{ text-decoration:none; padding:12px 20px; border-radius:8px; font-weight:700;
+        color:#fff; background:#0284c7; box-shadow:0 2px 4px rgba(0,0,0,.1); }
     .action-btns a:hover{ background:#0369a1; }
 
     .badge{ padding:4px 10px; border-radius:8px; font-size:12px; font-weight:700; color:#fff; display:inline-block; margin-left:8px; }
@@ -56,7 +40,7 @@
 
 @php
     $ext = strtolower(pathinfo($document->file_path, PATHINFO_EXTENSION));
-    // URL aman untuk embed/preview
+    // Semua embed/preview ambil dari route raw (aman di Railway)
     $url = route('documents.raw', $document->id);
 @endphp
 
@@ -112,4 +96,19 @@
         </div>
     </div>
 </div>
+
+{{-- Perbaiki menu “Tambah File” di sidebar kalau salah kirim ID dokumen --}}
+<script>
+document.addEventListener('DOMContentLoaded', function(){
+    var target = "{{ route('documents.create', $document->folder_id) }}";
+    // cari link yang teksnya “Tambah File” atau yang pattern-nya /documents/create
+    document.querySelectorAll('a').forEach(function(a){
+        var href = a.getAttribute('href') || '';
+        var txt  = (a.textContent || '').trim().toLowerCase();
+        if (txt === 'tambah file' || /\/documents\/create(\/\d+)?$/.test(href)) {
+            a.setAttribute('href', target);
+        }
+    });
+});
+</script>
 @endsection
