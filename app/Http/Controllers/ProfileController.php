@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Str;
 use App\Models\User;
 use Carbon\Carbon;
 
@@ -82,7 +83,6 @@ class ProfileController extends Controller
         return redirect()->route('profile')->with('success', 'Password berhasil diperbarui!');
     }
 
-
     public function editPhoto()
     {
         return view('profile.edit-photo', [
@@ -98,15 +98,25 @@ class ProfileController extends Controller
 
         $user = Auth::user();
 
-        if ($user->photo && Storage::disk('public')->exists($user->photo)) {
-            Storage::disk('public')->delete($user->photo);
+        $disk = Storage::disk('public');
+
+        if (!$disk->exists('profile-photos')) {
+            $disk->makeDirectory('profile-photos');
         }
 
-        $path = $request->file('profile_photo')->store('profile-photos', 'public');
-        $user->photo = $path;
+        if ($user->photo && $disk->exists($user->photo)) {
+            $disk->delete($user->photo);
+        }
+
+        $file = $request->file('profile_photo');
+        $ext  = strtolower($file->getClientOriginalExtension());
+        $name = Str::uuid()->toString().'.'.$ext;
+
+        $disk->putFileAs('profile-photos', $file, $name);
+
+        $user->photo = 'profile-photos/'.$name;
         $user->save();
 
         return redirect()->route('profile')->with('success', 'Foto profil berhasil diperbarui!');
     }
-
 }

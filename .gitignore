@@ -1,24 +1,45 @@
-*.log
+# ---- OS junk 
 .DS_Store
+Thumbs.db
+
+# ---- Logs
+*.log
+/storage/logs/*.log
+
+# ---- Environment
 /.env
 .env.backup
 .env.production
-.phpactor.json
-.phpunit.result.cache
+
+# ---- Editors / IDE
 /.fleet
 /.idea
 /.nova
 /.phpunit.cache
 /.vscode
 /.zed
-/auth.json
+.phpactor.json
+.phpunit.result.cache
+
+# ---- Dependencies
 /node_modules
+/vendor
+
+# ---- Laravel build & temp
 /public/build
 /public/hot
 /public/storage
-/storage/*.key 
+/storage/*.key
 /storage/pail
-/vendor
+
+# ---- Homestead
 Homestead.json
 Homestead.yaml
-Thumbs.db
+
+# ---- Uploads (keep folder only)
+ /public/uploads/*
+ !/public/uploads/.gitkeep
+
+# ---- Laravel "public" disk (keep .gitignore only)
+/storage/app/public/*
+!/storage/app/public/.gitignore

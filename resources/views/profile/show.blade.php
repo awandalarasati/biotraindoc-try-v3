@@ -3,61 +3,23 @@
 @section('content')
 
 <style>
-    html, body {
-        margin: 0;
-        padding: 0;
-    }
-
-    .background {
-        min-height: 100vh;
-        background: linear-gradient(to bottom, #b2f0ff, #ffffff);
-        padding: 40px 20px;
-        font-family: sans-serif;
-    }
-
-    .box-profil {
-        background: white;
-        border-radius: 15px;
-        padding: 40px 30px;
-        max-width: 1000px;
-        margin: auto;
-        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
-        position: relative;
-    }
-
-    .alert-success {
-        max-width: 500px;
-        margin: 0 auto 20px;
-        background-color: #d1fae5;
-        color: #047857;
-        border: 1px solid #10b981;
-        padding: 10px 15px;
-        border-radius: 8px;
-        text-align: center;
-        font-weight: bold;
-    }
-
-    .info-grid {
-        display: grid;
-        grid-template-columns: 150px 1fr;
-        row-gap: 12px;
-    }
-
-    @media screen and (max-width: 600px) {
-        .info-grid {
-            grid-template-columns: 1fr;
-        }
-    }
-
-    .action-box {
-        background: #fefefe;
-        border-radius: 12px;
-        box-shadow: 0 3px 8px rgba(0, 0, 0, 0.1);
-        padding: 25px;
-        max-width: 700px;
-        margin: 30px auto 0;
-    }
+    html, body { margin: 0; padding: 0; }
+    .background { min-height: 100vh; background: linear-gradient(to bottom, #b2f0ff, #ffffff); padding: 40px 20px; font-family: sans-serif; }
+    .box-profil { background: white; border-radius: 15px; padding: 40px 30px; max-width: 1000px; margin: auto; box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05); position: relative; }
+    .alert-success { max-width: 500px; margin: 0 auto 20px; background-color: #d1fae5; color: #047857; border: 1px solid #10b981; padding: 10px 15px; border-radius: 8px; text-align: center; font-weight: bold; }
+    .info-grid { display: grid; grid-template-columns: 150px 1fr; row-gap: 12px; }
+    @media screen and (max-width: 600px) { .info-grid { grid-template-columns: 1fr; } }
+    .action-box { background: #fefefe; border-radius: 12px; box-shadow: 0 3px 8px rgba(0, 0, 0, 0.1); padding: 25px; max-width: 700px; margin: 30px auto 0; }
 </style>
+
+@php
+    // FOTO: buat URL yang otomatis https kalau halaman https (Railway)
+    $photoPath = $user->photo;
+    $exists    = $photoPath && \Illuminate\Support\Facades\Storage::disk('public')->exists($photoPath);
+    $photoUrl  = $exists
+        ? (request()->isSecure() ? secure_asset('storage/'.$photoPath) : asset('storage/'.$photoPath))
+        : asset('assets/icons/user.png');
+@endphp
 
 <div class="background">
     <h2 style="color: #029dbb; font-size: 26px; text-align: center;">{{ $greeting }}</h2>
@@ -81,14 +43,8 @@
 
     {{-- Foto dan Nama --}}
     <div style="text-align: center;">
-        @if ($user->photo)
-            <img src="{{ asset('storage/' . $user->photo) }}" alt="Foto Profil"
-                style="width: 100px; height: 100px; border-radius: 50%; object-fit: cover;">
-        @else
-            <img src="{{ asset('assets/icons/user.png') }}" alt="Foto Default"
-                style="width: 100px; height: 100px; border-radius: 50%; background: #eee;">
-        @endif
-
+        <img src="{{ $photoUrl }}" alt="Foto Profil"
+             style="width: 100px; height: 100px; border-radius: 50%; object-fit: cover; background: #eee;">
         <h4 style="color: #0285c7; font-weight: bold; font-size: 20px; margin-top: 10px;">
             {{ $user->name }}
         </h4>
