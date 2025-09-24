@@ -4,11 +4,11 @@ namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\View;
+use Illuminate\Support\Facades\URL;
 use Carbon\Carbon;
 
 class AppServiceProvider extends ServiceProvider
 {
-
     public function register(): void
     {
         //
@@ -16,6 +16,10 @@ class AppServiceProvider extends ServiceProvider
 
     public function boot(): void
     {
+        if (app()->environment('production')) {
+            URL::forceScheme('https');
+        }
+
         View::composer('*', function ($view) {
             $hour = Carbon::now('Asia/Jakarta')->format('H');
             if ($hour >= 5 && $hour < 12) {
@@ -27,7 +31,6 @@ class AppServiceProvider extends ServiceProvider
             } else {
                 $greeting = 'Selamat malam!';
             }
-
             $view->with('greeting', $greeting);
         });
     }

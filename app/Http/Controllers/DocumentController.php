@@ -243,7 +243,8 @@ class DocumentController extends Controller
         $path = $this->resolveExistingPath($document);
         abort_unless($path && is_file($path), 404, 'File tidak ditemukan.');
 
-        $mime = match (strtolower(pathinfo($path, PATHINFO_EXTENSION))) {
+        $ext = strtolower(pathinfo($path, PATHINFO_EXTENSION));
+        $mime = match ($ext) {
             'pdf'        => 'application/pdf',
             'png'        => 'image/png',
             'jpg','jpeg' => 'image/jpeg',
@@ -254,8 +255,16 @@ class DocumentController extends Controller
             default      => mime_content_type($path) ?: 'application/octet-stream',
         };
 
-        return Response::file($path, ['Content-Type' => $mime]);
+        $filename = $document->original_name ?: basename($path);
+
+        return response()->file($path, [
+            'Content-Type'            => $mime,
+            'Content-Disposition'     => 'inline; filename="'.$filename.'"',
+            'X-Frame-Options'         => 'SAMEORIGIN',
+            'Content-Security-Policy' => "frame-ancestors 'self'",
+        ]);
     }
+
 
     /* =============== Download (streaming) =============== */
 
