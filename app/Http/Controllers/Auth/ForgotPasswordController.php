@@ -7,6 +7,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Password;
 use Illuminate\Auth\Notifications\ResetPassword;
 use App\Models\User;
+use App\Notifications\ResetPasswordNotification;
+use Throwable;
 
 class ForgotPasswordController extends Controller
 {
@@ -20,17 +22,22 @@ class ForgotPasswordController extends Controller
         $request->validate(['email' => 'required|email']);
 
         $user = User::where('email', $request->email)->first();
-
         if (!$user) {
             return back()->withErrors(['email' => 'Email tidak ditemukan di sistem kami.']);
         }
 
         ResetPassword::toMailUsing(function ($notifiable, $token) use ($request) {
-            return (new \App\Notifications\ResetPasswordNotification($token, $request->email))
+            return (new ResetPasswordNotification($token, $request->email))
                 ->toMail($notifiable);
         });
 
-        $status = Password::sendResetLink($request->only('email'));
+        try {
+            $status = Password::sendResetLink($request->only('email'));
+        } catch (Throwable $e) {
+            return back()->withErrors([
+                'email' => 'Gagal mengirim email reset. Coba lagi nanti atau hubungi admin.'
+            ]);
+        }
 
         return $status === Password::RESET_LINK_SENT
             ? back()->with(['status' => __($status)])

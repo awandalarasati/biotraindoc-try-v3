@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="id">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -23,7 +23,7 @@
         <div class="bg-white shadow-lg rounded-xl p-8 md:p-10 w-full max-w-md">
             <h2 class="text-2xl font-bold text-[#029dbb] mb-6 text-center">Reset Password</h2>
 
-            {{-- Error Handling --}}
+            {{-- Pesan error --}}
             @if ($errors->any())
                 <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
                     @foreach ($errors->all() as $error)
@@ -32,28 +32,45 @@
                 </div>
             @endif
 
+            {{-- Pesan sukses --}}
+            @if (session('status'))
+                <div class="bg-green-100 text-green-700 p-3 rounded mb-4 text-center">
+                    {{ session('status') }}
+                </div>
+            @endif
+
             <form method="POST" action="{{ route('password.update') }}">
                 @csrf
-                <input type="hidden" name="token" value="{{ request()->route('token') }}">
-                <input type="hidden" name="email" value="{{ request('email') }}">
+                {{-- Pakai variabel dari controller, bukan request() --}}
+                <input type="hidden" name="token" value="{{ $token ?? request()->route('token') }}">
+                <input type="hidden" name="email" value="{{ $email ?? request('email') }}">
 
-            <!-- PASSWORD BARU -->
-            <div class="mb-5 relative-input">
-                <label for="password" class="block text-sm font-semibold text-[#029dbb] mb-2">Password Baru</label>
-                <input type="password" id="password" name="password"
-                    class="w-full px-4 py-3 border border-gray-300 rounded-lg pr-12 focus:outline-none focus:ring-2 focus:ring-cyan-400"
-                    required>
-                <img src="{{ asset('assets/icons/eye.png') }}" alt="Show" class="icon-eye" id="togglePassword">
-            </div>
+                {{-- PASSWORD BARU --}}
+                <div class="mb-5 relative-input">
+                    <label for="password" class="block text-sm font-semibold text-[#029dbb] mb-2">Password Baru</label>
+                    <input
+                        type="password"
+                        id="password"
+                        name="password"
+                        class="w-full px-4 py-3 border border-gray-300 rounded-lg pr-12 focus:outline-none focus:ring-2 focus:ring-cyan-400"
+                        required
+                    >
+                    <img src="{{ asset('assets/icons/eye.png') }}" alt="Show" class="icon-eye" id="togglePassword">
+                </div>
 
-            <!-- KONFIRMASI PASSWORD -->
-            <div class="mb-6 relative-input">
-                <label for="password_confirmation" class="block text-sm font-semibold text-[#029dbb] mb-2">Konfirmasi Password</label>
-                <input type="password" id="password_confirmation" name="password_confirmation"
-                    class="w-full px-4 py-3 border border-gray-300 rounded-lg pr-12 focus:outline-none focus:ring-2 focus:ring-cyan-400"
-                    required>
-                <img src="{{ asset('assets/icons/eye.png') }}" alt="Show" class="icon-eye" id="togglePasswordConfirm">
-            </div>
+                {{-- KONFIRMASI PASSWORD --}}
+                <div class="mb-6 relative-input">
+                    <label for="password_confirmation" class="block text-sm font-semibold text-[#029dbb] mb-2">Konfirmasi Password</label>
+                    <input
+                        type="password"
+                        id="password_confirmation"
+                        name="password_confirmation"
+                        class="w-full px-4 py-3 border border-gray-300 rounded-lg pr-12 focus:outline-none focus:ring-2 focus:ring-cyan-400"
+                        required
+                    >
+                    <img src="{{ asset('assets/icons/eye.png') }}" alt="Show" class="icon-eye" id="togglePasswordConfirm">
+                </div>
+
                 <button type="submit" class="w-full bg-[#029dbb] text-white py-3 rounded-lg hover:bg-[#027a96] transition duration-200 font-bold">
                     Reset Password
                 </button>

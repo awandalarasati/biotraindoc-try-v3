@@ -3,29 +3,28 @@
 namespace App\Notifications;
 
 use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
+use Illuminate\Notifications\Messages\MailMessage;
 
 class ResetPasswordNotification extends Notification
 {
     use Queueable;
 
-    public $token;
-    public $email;
+    public string $token;
+    public string $email;
 
-    public function __construct($token, $email)
+    public function __construct(string $token, string $email)
     {
         $this->token = $token;
         $this->email = $email;
     }
 
-    public function via($notifiable)
+    public function via($notifiable): array
     {
         return ['mail'];
     }
 
-    public function toMail($notifiable)
+    public function toMail($notifiable): MailMessage
     {
         $resetUrl = url(route('password.reset', [
             'token' => $this->token,
@@ -35,7 +34,7 @@ class ResetPasswordNotification extends Notification
         return (new MailMessage)
             ->subject('Reset Kata Sandi Anda - Biofarma')
             ->view('emails.reset-password', [
-                'url' => $resetUrl,
+                'url'  => $resetUrl,
                 'name' => $notifiable->name,
             ]);
     }
